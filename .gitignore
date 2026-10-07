@@ -1,0 +1,11 @@
+node_modules/
+browser-profile/
+browser-profile-ui/
+lib/
+Apply Assistant.exe
+Apply Assistant.exe.old
+# Personal info: keep out of any repo
+me/
+resume/
+data/
+config.json

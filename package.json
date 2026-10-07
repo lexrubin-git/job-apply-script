@@ -1,0 +1,23 @@
+{
+  "name": "job-apply-script",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fills internship applications on company career sites from your info and saved answers. Never touches LinkedIn or Handshake.",
+  "type": "module",
+  "scripts": {
+    "app": "node src/app.js",
+    "build-exe": "node src/build-exe.js",
+    "start": "node src/index.js",
+    "find": "node src/finder.js",
+    "resume": "node src/resume.js",
+    "check": "node src/check.js"
+  },
+  "dependencies": {
+    "all-the-cities": "^3.1.0",
+    "pdfjs-dist": "^5.4.296",
+    "playwright": "1.61.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

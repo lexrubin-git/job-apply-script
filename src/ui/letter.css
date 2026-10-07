@@ -1,0 +1,29 @@
+/* Cover letter page. Used by the editor in the app and for the exported PDF, so both look the same. */
+.letter {
+  box-sizing: border-box;
+  width: 8.5in;
+  min-height: 11in;
+  padding: 0.7in 0.85in 0.8in;
+  background: #fff;
+  color: #2d2f36;
+  font-family: "Nunito Sans", "Avenir Next", "Avenir", "Segoe UI", sans-serif;
+  font-size: 12pt;
+  line-height: 1.6;
+  text-align: left;
+}
+.letter:focus { outline: none; }
+.letter .name { font-weight: 700; font-size: 12.5pt; line-height: 1.5; }
+.letter .contact { color: #5f6570; font-size: 11.5pt; line-height: 1.5; }
+.letter .date { margin-top: 0.45in; }
+.letter .recipient { margin-top: 0.4in; line-height: 1.5; }
+.letter .recipient .org { font-weight: 700; }
+.letter .greeting { margin-top: 0.55in; }
+.letter p { margin: 0 0 11pt; }
+.letter .closing { margin-top: 4pt; margin-bottom: 0.3in; }
+.letter .signature { margin: 0; }
+
+@media print {
+  @page { size: Letter; margin: 0.7in 0.85in 0.75in; }
+  html, body { margin: 0; background: #fff; }
+  .letter { width: auto; min-height: 0; padding: 0; }
+}

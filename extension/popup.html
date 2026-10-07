@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apply Assistant</title>
+<style>
+  /* Windows 98 look, like the app */
+  body { margin: 0; width: 290px; background: #c0c0c0; font: 12px/1.35 "Microsoft Sans Serif", "MS Sans Serif", Tahoma, sans-serif; color: #000; }
+  .head { display: flex; align-items: center; gap: 5px; height: 22px; padding: 0 6px; color: #fff; font-weight: bold; background: linear-gradient(90deg, #000080, #1084d0); }
+  .head img { width: 16px; height: 16px; image-rendering: pixelated; }
+  .body { padding: 10px; display: grid; gap: 8px; }
+  .status { background: #fff; padding: 5px 7px; box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a; }
+  button { font: inherit; min-height: 25px; padding: 3px 10px; border: 0; background: #c0c0c0; text-align: left; cursor: default;
+    box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; }
+  button:active:not(:disabled) { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
+  button:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+  button:disabled { color: #808080; text-shadow: 1px 1px 0 #fff; }
+  button b { display: block; }
+  button small { opacity: .8; }
+  hr { border: 0; border-top: 1px solid #808080; border-bottom: 1px solid #fff; margin: 2px 0; width: 100%; }
+  .note { opacity: .8; }
+</style>
+</head>
+<body>
+  <div class="head"><img src="icon16.png" alt="">Apply Assistant</div>
+  <div class="body">
+    <div class="status" id="status">Checking the app…</div>
+    <button id="openTab" disabled><b>Open in a tab</b><small>The whole app, in a new Chrome tab</small></button>
+    <button id="openSide" disabled><b>Open beside the page</b><small>Stays next to every tab you browse (close it with its ✕)</small></button>
+    <hr>
+    <button id="addPage" disabled><b>Add this page to my job list</b><small id="addNote">The job you're looking at</small></button>
+  </div>
+<script src="popup.js"></script>
+</body>
+</html>

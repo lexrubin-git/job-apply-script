@@ -1,0 +1,1843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="apply-assistant" content="1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apply Assistant</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="/letter.css">
+<link rel="icon" href="/icon16.png" sizes="16x16">
+<link rel="icon" href="/icon32.png" sizes="32x32">
+<style>
+  /* ---------- Windows 98 look ---------- */
+  :root {
+    --face: #c0c0c0; --hilite: #ffffff; --light: #dfdfdf; --shadow: #808080; --dark: #0a0a0a;
+    --navy: #000080; --title2: #1084d0; --desktop: #008080; --link: #0000ff;
+    --raised: inset -1px -1px var(--dark), inset 1px 1px var(--hilite), inset -2px -2px var(--shadow), inset 2px 2px var(--light);
+    --pressed: inset -1px -1px var(--hilite), inset 1px 1px var(--dark), inset -2px -2px var(--light), inset 2px 2px var(--shadow);
+    --sunken: inset -1px -1px var(--hilite), inset 1px 1px var(--shadow), inset -2px -2px var(--light), inset 2px 2px var(--dark);
+    --shallow: inset -1px -1px var(--hilite), inset 1px 1px var(--shadow);
+    --window: inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shadow), inset 2px 2px var(--hilite);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--desktop); color: #000; font: 12px/1.35 "Microsoft Sans Serif", "MS Sans Serif", Tahoma, Geneva, sans-serif; overflow: hidden; }
+  body.wait, body.wait * { cursor: progress !important; }
+  button, input, textarea, select { font: inherit; color: #000; }
+  a { color: var(--link); }
+  p { margin: 0 0 8px; }
+  u { text-decoration: underline; }
+
+  /* scrollbars */
+  ::-webkit-scrollbar { width: 16px; height: 16px; }
+  ::-webkit-scrollbar-track { background: repeating-conic-gradient(var(--face) 0 25%, var(--hilite) 0 50%) 0 0 / 2px 2px; }
+  ::-webkit-scrollbar-thumb { background: var(--face); box-shadow: var(--raised); }
+  ::-webkit-scrollbar-corner { background: var(--face); }
+  ::-webkit-scrollbar-button:single-button { display: block; width: 16px; height: 16px; background-color: var(--face); box-shadow: var(--raised);
+    background-repeat: no-repeat; background-position: center; }
+  ::-webkit-scrollbar-button:single-button:active { box-shadow: var(--pressed); }
+  ::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M3 0h1v1h1v1h1v1h1v1H0V3h1V2h1V1h1z'/%3E%3C/svg%3E"); }
+  ::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0h7v1H6v1H5v1H4v1H3V3H2V2H1V1H0z'/%3E%3C/svg%3E"); }
+  ::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M3 0h1v7H3V6H2V5H1V4H0V3h1V2h1V1h1z'/%3E%3C/svg%3E"); }
+  ::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M0 0h1v1h1v1h1v1h1v1H3v1H2v1H1v1H0z'/%3E%3C/svg%3E"); }
+
+  /* window chrome */
+  .window { background: var(--face); box-shadow: var(--window); padding: 3px; }
+  .app { position: fixed; inset: 8px; display: flex; flex-direction: column; }
+  .titlebar { display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 3px 0 4px; color: #fff; font-weight: bold;
+    background: linear-gradient(90deg, var(--navy), var(--title2)); user-select: none; }
+  .titlebar img { width: 16px; height: 16px; }
+  .titlebar .t { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .tbtn { width: 16px; height: 14px; min-width: 0; padding: 0; border: 0; background: var(--face) no-repeat center; box-shadow: var(--raised);
+    font: bold 11px/1 "Microsoft Sans Serif", Tahoma, sans-serif; display: grid; place-items: center; cursor: default; }
+  .tbtn:active { box-shadow: var(--pressed); }
+  .tbtn.min { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='2'%3E%3Cpath d='M0 0h6v2H0z'/%3E%3C/svg%3E");
+    background-position: 4px 9px; }
+  .tbtn.max { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Cpath fill-rule='evenodd' d='M9 0H0v9h9zM8 2H1v6h7z'/%3E%3C/svg%3E"); }
+  .maximized .tbtn.max { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='9'%3E%3Cpath fill-rule='evenodd' d='M2 0h6v6H7V2H3V0zM0 3h6v6H0zm1 2v3h4V5z'/%3E%3C/svg%3E"); }
+  .hosted-only { display: none; }
+  /* Inside "Apply Assistant.exe" the window itself paints the outer border, so fill it edge to edge. */
+  .hosted body { background: var(--face); }
+  .hosted .app { inset: 0; box-shadow: none; padding: 0 1px 1px; }
+  .hosted .hosted-only { display: grid; }
+  .hosted .titlebar { app-region: drag; -webkit-app-region: drag; }
+  .hosted .titlebar button { app-region: no-drag; -webkit-app-region: no-drag; }
+  .embedded body { background: var(--face); }
+  .embedded .app { inset: 0; box-shadow: none; padding: 0; }
+  .embedded .app > .titlebar { height: 24px; font-size: 12px; }
+  .embedded .app > .titlebar img { width: 16px; height: 16px; }
+  .embedded .titlebar .tbtn { display: none; }
+  .tbtn.close { margin-left: 2px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='7'%3E%3Cpath d='M0 0h2v1h1v1h2V1h1V0h2v1H7v1H6v1H5v1h1v1h1v1h1v1H6V6H5V5H3v1H2v1H0V6h1V5h1V4h1V3H2V2H1V1H0z'/%3E%3C/svg%3E"); }
+
+  /* The main window's title bar is 1.5x the classic height, with everything in it scaled up to match. */
+  .app > .titlebar { height: 33px; gap: 6px; padding: 0 5px 0 6px; font-size: 14px; }
+  .app > .titlebar img { width: 24px; height: 24px; image-rendering: auto; }
+  .app > .titlebar .tbtn { width: 24px; height: 21px; font-size: 14px; }
+  .app > .titlebar .tbtn.close { background-size: 12px 11px; margin-left: 3px; }
+  .app > .titlebar .tbtn.min { background-size: 9px 3px; background-position: 6px 13px; }
+  .app > .titlebar .tbtn.max { background-size: 14px 14px; }
+  .maximized .app > .titlebar .tbtn.max { background-size: 12px 14px; }
+
+  .menubar { display: flex; padding: 2px 2px 1px; position: relative; z-index: 30; }
+  .menu { position: relative; }
+  .menu > button { background: none; border: 0; padding: 2px 7px; cursor: default; }
+  .menu > button[aria-expanded="true"] { box-shadow: var(--shallow); }
+  .menu .items { display: none; position: absolute; top: 100%; left: 0; min-width: 210px; padding: 3px; background: var(--face); box-shadow: var(--window); }
+  .menu.open .items { display: block; }
+  .items button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 3px 18px 3px 22px; cursor: default; white-space: nowrap; }
+  .items button:hover, .items button:focus-visible { background: var(--navy); color: #fff; outline: none; }
+  .items hr { border: 0; border-top: 1px solid var(--shadow); border-bottom: 1px solid var(--hilite); margin: 3px 2px; }
+
+  .body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 6px 6px 4px; }
+  .tabs { display: flex; align-items: flex-end; padding-left: 2px; position: relative; z-index: 2; margin-bottom: -2px; }
+  .tabs button { position: relative; background: var(--face); border: 0; padding: 3px 12px 4px; margin: 0 0 2px; cursor: default;
+    box-shadow: inset 1px 1px var(--hilite), inset 2px 2px var(--light), inset -1px 0 var(--dark), inset -2px 0 var(--shadow); border-radius: 3px 3px 0 0; }
+  .tabs button[aria-selected="true"] { margin: 0 -2px; padding: 5px 14px 6px; z-index: 3; }
+  .tabs button:focus-visible span { outline: 1px dotted #000; }
+  .panel { position: relative; z-index: 1; flex: 1; min-height: 0; overflow: auto; padding: 12px; box-shadow: var(--raised); background: var(--face); }
+  .tab[hidden] { display: none !important; }
+
+  .statusbar { display: flex; gap: 2px; padding: 2px 0 0; }
+  .statusbar p { margin: 0; padding: 2px 5px; box-shadow: var(--shallow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .statusbar p:first-child { flex: 1; }
+
+  /* controls */
+  .w { min-width: 75px; min-height: 23px; padding: 0 12px; border: 0; border-radius: 0; background: var(--face); box-shadow: var(--raised); cursor: default; white-space: nowrap; }
+  .w:active:not(:disabled) { box-shadow: var(--pressed); padding: 2px 11px 0 13px; }
+  .w:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+  .w.default { box-shadow: inset -2px -2px var(--dark), inset 1px 1px var(--dark), inset 2px 2px var(--hilite), inset -3px -3px var(--shadow), inset 3px 3px var(--light); }
+  .w.big { min-height: 32px; padding: 0 22px; font-weight: bold; }
+  .w:disabled { color: var(--shadow); text-shadow: 1px 1px 0 var(--hilite); }
+  .mini { min-width: 20px; width: 20px; height: 18px; min-height: 0; padding: 0; font-size: 11px; }
+  .mini:active:not(:disabled) { padding: 1px 0 0 1px; }
+  input[type=text], input[type=url], textarea, select { width: 100%; background: #fff; border: 0; border-radius: 0; box-shadow: var(--sunken); padding: 3px 4px; outline: none; }
+  input[type=text], input[type=url], select { height: 21px; }
+  textarea { resize: vertical; min-height: 110px; padding: 4px 5px; }
+  select { appearance: none; padding-right: 22px; background: #fff no-repeat right 2px center / 16px 17px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='17'%3E%3Cpath fill='%230a0a0a' d='M15 0v17H0v-1h14V0z'/%3E%3Cpath fill='%23fff' d='M1 1v14h1V2h12V1H2z'/%3E%3Cpath fill='%23808080' d='M14 1v15H1v-1h12V1z'/%3E%3Cpath fill='%23dfdfdf' d='M1 0H0v16h1V1h14V0z'/%3E%3Cpath fill='%23c0c0c0' d='M2 2h11v13H2z'/%3E%3Cpath d='M11 6H4v1h1v1h1v1h1v1h1V9h1V8h1V7h1z'/%3E%3C/svg%3E"); }
+  label { display: block; margin-bottom: 3px; }
+
+  /* multi-select dropdown (a list of checkboxes) */
+  .multi { position: relative; flex: 1; min-width: 0; }
+  .multibtn { width: 100%; height: 21px; padding: 3px 22px 3px 4px; border: 0; text-align: left; cursor: default; background: #fff no-repeat right 2px center / 16px 17px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='17'%3E%3Cpath fill='%230a0a0a' d='M15 0v17H0v-1h14V0z'/%3E%3Cpath fill='%23fff' d='M1 1v14h1V2h12V1H2z'/%3E%3Cpath fill='%23808080' d='M14 1v15H1v-1h12V1z'/%3E%3Cpath fill='%23dfdfdf' d='M1 0H0v16h1V1h14V0z'/%3E%3Cpath fill='%23c0c0c0' d='M2 2h11v13H2z'/%3E%3Cpath d='M11 6H4v1h1v1h1v1h1v1h1V9h1V8h1V7h1z'/%3E%3C/svg%3E");
+    box-shadow: var(--sunken); }
+  .multibtn span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .multibtn:focus-visible span { outline: 1px dotted #000; }
+  .multilist { position: absolute; z-index: 40; top: 100%; left: 0; right: 0; max-height: 300px; overflow: auto; background: #fff; border: 1px solid #000; padding: 1px 0; }
+  .multilist label { display: flex; align-items: center; gap: 6px; margin: 0; padding: 2px 6px; cursor: default; white-space: nowrap; }
+  .multilist label:hover { background: var(--navy); color: #fff; }
+  .multilist hr { border: 0; border-top: 1px solid var(--shadow); margin: 2px 4px; }
+  .multilist { max-height: 440px; right: auto; width: max(100%, 390px); max-width: calc(100vw - 40px); }
+  .multilist .typefilter { position: sticky; top: 0; z-index: 1; width: calc(100% - 8px); margin: 3px 4px 4px; }
+  .multilist .cathead { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 1px 6px 1px 2px; }
+  .multilist .cathead .twisty { background: none; flex: 1; text-align: left; padding: 2px 2px; }
+  .multilist .cathead .catcount { opacity: .65; font-weight: normal; }
+  .multilist .catbody label { padding-left: 26px; }
+  .multilist .cat + .cat { border-top: 1px solid var(--light); }
+  input[type=checkbox] { appearance: none; flex: none; width: 13px; height: 13px; margin: 0; background: #fff center no-repeat; box-shadow: var(--sunken); }
+  input[type=checkbox]:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7'%3E%3Cpath d='M7 0H6v1H5v1H4v1H3v1H2V3H1V2H0v3h1v1h1v1h1V6h1V5h1V4h1V3h1z'/%3E%3C/svg%3E"); }
+  input[type=checkbox]:focus-visible { outline: 1px dotted #000; outline-offset: 2px; }
+  .skills { margin: 6px 0; }
+  .skills b { display: inline-block; min-width: 150px; }
+
+  fieldset { border: 1px solid var(--shadow); box-shadow: inset 1px 1px var(--hilite), 1px 1px var(--hilite); margin: 0 0 12px; padding: 10px 10px 10px; min-width: 0; }
+  legend { padding: 0 3px; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .hint { color: #000; opacity: .75; }
+  .sunkbox { background: #fff; box-shadow: var(--sunken); padding: 6px 8px; }
+
+  /* progress bars */
+  .progress { height: 20px; background: #fff; box-shadow: var(--shallow); padding: 3px; overflow: hidden; }
+  .progress .bar { height: 100%; background: repeating-linear-gradient(90deg, var(--navy) 0 9px, transparent 9px 11px); }
+  .progress.marquee .bar { width: 26%; animation: marquee 1.5s linear infinite; }
+  @keyframes marquee { from { margin-left: -26%; } to { margin-left: 100%; } }
+
+  [hidden] { display: none !important; }
+  .tooltip { position: fixed; z-index: 300; display: none; max-width: 360px; padding: 2px 5px; background: #ffffe1; color: #000;
+    border: 1px solid #000; font-size: 11px; line-height: 1.3; pointer-events: none; }
+  .pixel { image-rendering: pixelated; }
+
+  /* message boxes */
+  .overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; }
+  .dialog { width: min(440px, 92vw); }
+  .dialog .content { display: flex; gap: 14px; padding: 14px 14px 6px; align-items: flex-start; }
+  .dialog .content img { width: 32px; height: 32px; flex: none; image-rendering: pixelated; }
+  .dialog .text { white-space: pre-wrap; padding-top: 2px; max-height: 50vh; overflow: auto; }
+  .dialog .buttons { display: flex; justify-content: center; gap: 6px; padding: 10px 10px 8px; }
+
+  /* Apply tab */
+  .banner { display: flex; gap: 10px; align-items: center; }
+  .banner img { width: 32px; height: 32px; flex: none; }
+  .banner ul { margin: 2px 0 0; padding-left: 16px; }
+  .idle { text-align: center; padding: 6px 4px; }
+  .idle h3 { margin: 0 0 4px; font-size: 14px; }
+  .steps { text-align: left; margin: 14px auto 0; max-width: 420px; padding-left: 20px; }
+  .steps li { padding: 2px 0; }
+  .jobtitle { font-weight: bold; font-size: 14px; margin: 0; }
+  .fitrow { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; margin: 8px 0; }
+  .flags { list-style: none; margin: 8px 0; padding: 0; }
+  .flags li { display: flex; gap: 6px; align-items: flex-start; margin-top: 4px; }
+  .flags img { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+  fieldset.where { margin: 8px 0; padding: 6px 10px 8px; }
+  .where dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
+  .where dt { font-weight: bold; }
+  .where dd { margin: 0; min-width: 0; }
+  .where dd.tipped { text-decoration: underline dotted; cursor: help; }
+  .verdict { margin-top: 6px; padding: 3px 6px; background: #fff; box-shadow: var(--shallow); }
+  .verdict.good { color: #006400; }
+  .verdict.warn { color: #8a3a00; font-weight: bold; }
+  .statusbox { white-space: pre-wrap; margin: 8px 0; }
+  .statusbox .progress { margin-top: 6px; }
+  .legend { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 11px; height: 11px; border: 1px solid #000; margin-right: 4px; vertical-align: -1px; }
+  .needs { margin: 4px 0 0; padding-left: 18px; }
+  .needs small { display: block; opacity: .75; }
+  .log { height: 170px; overflow: auto; margin: 0; font: 12px/1.4 "Lucida Console", Consolas, monospace; white-space: pre-wrap; }
+
+  /* list views */
+  .listview { background: #fff; box-shadow: var(--sunken); padding: 2px; overflow: auto; }
+  .listview table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .listview th { position: sticky; top: 0; z-index: 1; background: var(--face); box-shadow: var(--raised); font-weight: normal; text-align: left; padding: 2px 6px; white-space: nowrap; overflow: hidden; }
+  .listview th.sortable { cursor: default; user-select: none; }
+  .listview th.sortable:active { box-shadow: var(--pressed); }
+  .listview th.sortable:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+  .listview td { padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+  .listview tbody tr:not(.empty) { cursor: default; }
+  .listview tr.sel td { background: var(--navy); color: #fff; }
+  .listview tr.sel a { color: #fff; }
+  .listview tr.cur td { font-weight: bold; }
+  .startrow { display: flex; gap: 10px; justify-content: center; align-items: stretch; margin-top: 4px; }
+  .pick { min-width: 0; max-width: 340px; text-align: left; background: #fff; box-shadow: var(--sunken); padding: 5px 10px; }
+  .pick small { opacity: .7; }
+  .pick .picktitle { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .listview td.acts { padding: 1px 2px; overflow: visible; }
+  .listview td.acts .row { gap: 2px; flex-wrap: nowrap; justify-content: flex-end; }
+  .listview .empty td { white-space: normal; text-align: center; padding: 18px 8px; opacity: .75; }
+  #qView { height: 300px; }
+
+  /* cover letter maker */
+  .clgrid { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 8px; align-items: center; }
+  .clgrid label { margin: 0; white-space: nowrap; }
+  .editor { width: min(920px, 96vw); height: min(94vh, 1100px); display: flex; flex-direction: column; }
+  .editor .tools { display: flex; gap: 6px; align-items: center; padding: 6px 6px 5px; flex-wrap: wrap; }
+  .editor .tools .hint { margin-left: 6px; }
+  .editor .links { margin: 0 4px 6px; padding: 5px 8px; background: #ffffe1; border: 1px solid var(--shadow); max-height: 130px; overflow: auto; }
+  .editor .links ul { margin: 2px 0 0; padding-left: 18px; }
+  .editor .links li { margin: 1px 0; }
+  .editor .links .gaps { margin-top: 3px; opacity: .8; }
+  .editor .paper { flex: 1; min-height: 0; overflow: auto; background: var(--shadow); box-shadow: var(--sunken); padding: 18px; margin: 0 4px 4px; }
+  .editor .letter { margin: 0 auto; box-shadow: 3px 3px 0 rgba(0,0,0,.35); cursor: text; }
+
+  /* My info */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 12px; }
+  .itemlist { list-style: none; margin: 0; padding: 0; }
+  .itemlist li { display: flex; gap: 8px; align-items: center; padding: 4px 2px; }
+  .itemlist li + li { border-top: 1px solid var(--light); }
+  .itemlist .grow { flex: 1; min-width: 0; }
+  .savebar { position: sticky; bottom: -12px; margin: 0 -12px -12px; padding: 8px 12px; background: var(--face); border-top: 1px solid var(--shadow);
+    box-shadow: inset 0 1px var(--hilite); display: flex; justify-content: flex-end; gap: 10px; align-items: center; z-index: 5; }
+  .savebar .msg { flex: 1; }
+
+  /* collapsible section: a tree-view style [+]/[-] box in the heading */
+  .twisty { display: inline-flex; align-items: center; gap: 5px; padding: 0 2px; border: 0; background: var(--face); cursor: default; }
+  .twisty:focus-visible { outline: 1px dotted #000; }
+  .twisty .box { position: relative; width: 9px; height: 9px; border: 1px solid var(--shadow); background: #fff; }
+  .twisty .box::before { content: ''; position: absolute; left: 1px; top: 3px; width: 5px; height: 1px; background: #000; }
+  .twisty .box::after { content: ''; position: absolute; left: 3px; top: 1px; width: 1px; height: 5px; background: #000; }
+  .twisty[aria-expanded="true"] .box::after { display: none; }
+  fieldset.collapsible.closed { padding-bottom: 2px; }
+  .kindbtn { min-width: 92px; padding: 0 8px; }
+  .findrow { flex-wrap: wrap; row-gap: 6px; }
+  .findrow .multi { min-width: 170px; }
+  select.minfit { width: auto; min-width: 74px; flex: none; }
+  .listview td.fit { text-align: center; }
+  .listview tr.low td { color: var(--shadow); }
+  .listview tr.low.sel td { color: #c0c0c0; }
+  .kindbtn::after { content: ' ⇄'; }
+  .hrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 4px; align-items: center; margin-bottom: 4px; }
+  .hrow .mini { height: 21px; }
+  .citybox { position: relative; min-width: 0; }
+  .citylist { position: absolute; z-index: 45; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #000; padding: 1px 0; }
+  .citylist .opt { padding: 2px 6px; cursor: default; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .citylist .opt small { opacity: .7; }
+  .citylist .opt.on, .citylist .opt:hover { background: var(--navy); color: #fff; }
+  .citylist .opt.none { opacity: .7; }
+  .citylist .opt.none:hover { background: none; color: #000; }
+  .hrow .htstate { grid-column: 1 / -1; }
+  .hrow .htstate:empty, .hrow .htstate:only-child { display: none; }
+  .itemlist li.muted { opacity: .8; }
+  .site { display: flex; gap: 8px; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--shadow); box-shadow: 0 -1px 0 var(--hilite) inset; }
+  .site .grow { flex: 1; min-width: 0; }
+  .work { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--shadow); box-shadow: 0 -1px 0 var(--hilite) inset; }
+  .work small.hint { display: block; margin: 2px 0 4px; }
+  .work .row .w { flex: none; }
+  .work .row input { flex: 1; min-width: 0; }
+  .light i { display: block; width: 9px; height: 9px; margin: auto; border: 1px solid #000; }
+  .light.go i { background: #16a34a; }
+  .light.check i { background: #f97316; }
+  .hiddenrow { margin-top: 6px; flex-wrap: nowrap; }
+  .hiddenrow .grow { flex: 1; min-width: 0; }
+  .hiddenlist { margin-top: 6px; max-height: 220px; }
+  .mini.wide { width: auto; min-width: 0; padding: 0 6px; }
+  .addrow input { flex: 1; min-width: 0; }
+  .addrow .w { flex: none; }
+  .elsewhere { display: inline-flex; gap: 4px; }
+  .refreshbtn { min-width: 0; width: 28px; padding: 0; font-size: 15px; line-height: 1; }
+  .elsewhere .w { min-width: 0; padding: 0 8px; }
+  .popmenu { position: fixed; z-index: 60; display: block; min-width: 190px; padding: 3px; background: var(--face); box-shadow: var(--window); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .qa { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--shadow); box-shadow: 0 -1px 0 var(--hilite) inset; }
+  .qa small.hint { display: block; margin: 2px 0 6px; }
+  .qa .grow { flex: 1; min-width: 0; }
+  .qa #qaCount.over { color: #a00000; font-weight: bold; }
+  .qa .basis { margin-top: 6px; padding: 5px 8px; background: #ffffe1; border: 1px solid var(--shadow); }
+  .qa .basis:empty { display: none; }
+  .qa .basis ul { margin: 2px 0 0; padding-left: 18px; }
+  .qa .basis .gaps { margin-top: 3px; opacity: .85; }
+  label.check.autonext { margin: 0 0 0 6px; }
+  label.check { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; }
+  hr.etched { border: 0; border-top: 1px solid var(--shadow); border-bottom: 1px solid var(--hilite); margin: 12px 0 10px; }
+  /* trackbar (slider), Windows 98 style */
+  .slider { position: relative; padding: 0 2px; }
+  input[type=range] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 24px; margin: 0; background: transparent; cursor: default; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--face); box-shadow: var(--sunken); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 21px; margin-top: -9px; border: 0;
+    background: var(--face); box-shadow: var(--raised); clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%); }
+  input[type=range]:focus-visible { outline: 1px dotted #000; }
+  /* each tick sits under the thumb's center for its value (the thumb is 11px wide; the slider goes 0-105) */
+  .ticks { position: relative; height: 19px; font-size: 11px; }
+  .ticks span { position: absolute; top: 0; left: calc(5px + (100% - 11px) * var(--v) / var(--max)); padding-top: 5px; transform: translateX(-50%); white-space: nowrap; }
+  .ticks span.end { transform: translateX(calc(-100% + 6px)); }
+  .ticks span::before { content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 4px; background: #000; }
+  .ticks span.end::before { left: auto; right: 5px; }
+
+  /* History */
+  .stats { display: flex; gap: 8px; margin-bottom: 10px; }
+  .stats div { box-shadow: var(--shallow); padding: 4px 12px; }
+  .stats b { font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="window app">
+  <div class="titlebar">
+    <img src="/icon32.png" class="pixel" alt="">
+    <span class="t">Apply Assistant</span>
+    <button class="tbtn min hosted-only" id="minBtn" title="Minimize" aria-label="Minimize"></button>
+    <button class="tbtn max hosted-only" id="maxBtn" title="Maximize" aria-label="Maximize"></button>
+    <button class="tbtn close" id="closeBtn" title="Close" aria-label="Close"></button>
+  </div>
+  <div class="menubar">
+    <div class="menu" id="menuFile">
+      <button aria-expanded="false"><u>F</u>ile</button>
+      <div class="items">
+        <button data-act="find">Find new internships</button>
+        <button data-act="start">Start applying</button>
+        <hr>
+        <button data-act="extension">Set up Chrome extension…</button>
+        <button data-act="open-folder">Open project folder</button>
+        <hr>
+        <button data-act="exit">Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="apply" aria-selected="true"><span>Apply</span></button>
+      <button role="tab" data-tab="info" aria-selected="false"><span>My info</span></button>
+      <button role="tab" data-tab="history" aria-selected="false"><span>History</span></button>
+    </div>
+    <div class="panel" id="panel">
+
+      <!-- APPLY -->
+      <section class="tab" id="tab-apply">
+        <div id="setupBanner"></div>
+        <div class="grid">
+          <div>
+            <fieldset><legend id="nowLegend">Now applying</legend><div id="nowCard"></div></fieldset>
+          </div>
+          <div>
+          <fieldset>
+            <legend>Job list <span id="qCount"></span></legend>
+            <label for="addUrl">Paste a job link (the company's site, or a LinkedIn or Handshake job):</label>
+            <div class="row addrow" style="flex-wrap:nowrap">
+              <input type="url" id="addUrl">
+              <button class="w" id="addBtn">Add</button>
+              <button class="w" id="importBtn" data-tip="Add the job page you're looking at in Chrome (works when this app is open from the Chrome extension: beside the page, or in a tab)">Import from tab</button>
+            </div>
+            <div class="row findrow" style="margin:8px 0 4px">
+              <button type="button" class="w kindbtn" id="kindBtn" aria-label="Looking for internships. Click to switch to full-time jobs.">Internships</button>
+              <label for="jobTypeBtn" style="margin:0;white-space:nowrap">Job types:</label>
+              <div class="multi" id="jobMulti">
+                <button type="button" class="multibtn" id="jobTypeBtn" aria-haspopup="listbox" aria-expanded="false"><span id="jobTypeText">Loading…</span></button>
+                <div class="multilist" id="jobTypeList" role="listbox" aria-multiselectable="true" aria-label="Job types" hidden></div>
+              </div>
+              <label for="minFit" style="margin:0;white-space:nowrap">Compatibility:</label>
+              <select id="minFit" class="minfit" data-tip="Only add jobs that match your resume and website at least this well (each job's description is read and scored). Jobs already in your list below this are grayed out.">
+                <option value="0">Any</option>
+                <option value="1">1+/10</option><option value="2">2+/10</option><option value="3">3+/10</option><option value="4">4+/10</option><option value="5">5+/10</option>
+                <option value="6">6+/10</option><option value="7">7+/10</option><option value="8">8+/10</option><option value="9">9+/10</option><option value="10">10/10</option>
+              </select>
+              <button class="w" id="findBtn" data-tip="Tidies your list to match your current settings, then searches public job lists and company career sites for every ticked job type and adds new matches. For LinkedIn and Handshake, use the buttons to the right.">Find new internships</button>
+              <button class="w refreshbtn" id="refreshBtn" aria-label="Refresh your job list" data-tip="Refresh: check every job in your list against your current settings again (cities, radius, remote, Compatibility, job types, internship or full-time). Jobs that don't fit are set aside; set-aside jobs that fit again come back. Doesn't search for new jobs.">⟳</button>
+              <span class="elsewhere">
+                <button class="w" id="liBtn" data-site="linkedin" aria-haspopup="menu" data-tip="Open a LinkedIn job search for your job types in your Chrome, to browse yourself. The app never reads LinkedIn.">LinkedIn ↗</button>
+                <button class="w" id="hsBtn" data-site="handshake" data-tip="Open a Handshake job search for your job types in your Chrome, to browse yourself. The app never reads Handshake.">Handshake ↗</button>
+              </span>
+            </div>
+            <div class="row" id="customRow" style="margin-bottom:4px;flex-wrap:nowrap" hidden>
+              <label for="customKw" style="margin:0;white-space:nowrap">Keywords:</label>
+              <input type="text" id="customKw" placeholder="e.g. game design, architecture, fashion" title="Job titles containing any of these words (separate with commas)">
+            </div>
+            <div style="height:6px"></div>
+            <div class="listview" id="qView">
+              <table>
+                <colgroup><col style="width:26px"><col><col style="width:28%"><col style="width:42px"><col style="width:68px"></colgroup>
+                <thead><tr><th>#</th><th>Job</th><th class="sortable" id="placeHead" tabindex="0" role="button" data-tip="Sort by distance from your search cities (click again to flip)">Company / place <span id="placeArrow"></span></th><th class="sortable" id="fitHead" tabindex="0" role="button" data-tip="Sort by how well each job matches your resume and website (click again to flip)">Fit <span id="fitArrow"></span></th><th></th></tr></thead>
+                <tbody id="qList"></tbody>
+              </table>
+            </div>
+            <div id="hiddenBar"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Cover letter maker</legend>
+            <div class="clgrid">
+              <label for="clJob">For job:</label>
+              <select id="clJob"></select>
+              <label for="clTone">Tone:</label>
+              <select id="clTone"></select>
+              <label for="clCustomTone" class="clcustom" hidden>Your style:</label>
+              <input type="text" id="clCustomTone" class="clcustom" placeholder="e.g. playful but professional, short sentences" hidden>
+              <label for="clNotes">Mention:</label>
+              <input type="text" id="clNotes" placeholder="Optional, e.g. my CrosswordLeague game, my love of maps">
+            </div>
+            <div id="clOther" hidden>
+              <div class="clgrid" style="margin-top:6px">
+                <label for="clCompany">Company:</label>
+                <input type="text" id="clCompany">
+                <label for="clTitle">Role:</label>
+                <input type="text" id="clTitle">
+              </div>
+              <label for="clDesc" style="margin-top:6px">Job description (paste it here):</label>
+              <textarea id="clDesc" style="min-height:90px"></textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button class="w default" id="clWrite">Write cover letter</button>
+              <span class="hint" id="clHint"></span>
+            </div>
+            <div class="qa">
+              <div><b>Answer an application question</b></div>
+              <small class="hint">Paste a question from the application (like "Why do you want to work here?"). It's answered in the tone above, for the job above, from your resume, website, and other work.</small>
+              <label for="qaQuestion" class="sr">Question</label>
+              <textarea id="qaQuestion" placeholder="Paste the question here" style="min-height:58px"></textarea>
+              <div class="row" style="margin-top:6px">
+                <label for="qaLimit" style="margin:0">Length:</label>
+                <select id="qaLimit" style="width:auto">
+                  <option value="">Any (short answer)</option>
+                  <option value="w:50">Up to 50 words</option><option value="w:100">Up to 100 words</option><option value="w:150">Up to 150 words</option>
+                  <option value="w:250">Up to 250 words</option><option value="w:400">Up to 400 words</option>
+                  <option value="c:500">Under 500 characters</option><option value="c:1000">Under 1,000 characters</option>
+                  <option value="c:1500">Under 1,500 characters</option><option value="c:2000">Under 2,000 characters</option>
+                </select>
+                <button class="w default" id="qaWrite">Write answer</button>
+              </div>
+              <div id="qaOut" hidden>
+                <label for="qaAnswer" class="sr">Answer</label>
+                <textarea id="qaAnswer" spellcheck="true" style="margin-top:6px;min-height:150px"></textarea>
+                <div class="row" style="margin-top:4px">
+                  <small id="qaCount" class="grow"></small>
+                  <button class="w" id="qaCopy">Copy</button>
+                  <button class="w" id="qaAgain">Write again</button>
+                </div>
+                <div class="basis" id="qaBasis"></div>
+              </div>
+            </div>
+          </fieldset>
+          </div>
+        </div>
+      </section>
+
+      <!-- MY INFO -->
+      <section class="tab" id="tab-info" hidden>
+        <div class="grid">
+          <div>
+            <fieldset>
+              <legend>About you</legend>
+              <p class="hint">Used to fill in forms. Leave anything blank that you'd rather answer yourself each time.</p>
+              <div id="profileForm"></div>
+            </fieldset>
+          </div>
+          <div>
+            <fieldset>
+              <legend>Resumes &amp; work</legend>
+              <p class="hint">The first resume is uploaded to applications. All of them, plus your website and other work below, are used for the match score.</p>
+              <ul class="itemlist" id="resumeList"></ul>
+              <div class="row" style="margin-top:8px">
+                <button class="w" id="addResumeBtn">Add resume PDF…</button>
+                <input type="file" id="resumeFile" accept="application/pdf,.pdf" hidden>
+                <span id="resumeMsg"></span>
+              </div>
+              <div class="work">
+                <div><b>Add other work</b></div>
+                <small class="hint">*We scan your work to gauge an accurate compatibility score. Add case studies, writing samples, slide decks, or links to Behance, Dribbble, a Google Doc, and so on.</small>
+                <ul class="itemlist" id="workList"></ul>
+                <div class="row" style="flex-wrap:nowrap;margin-top:4px">
+                  <button class="w" id="addWorkFileBtn" data-tip="PDF, Word (.docx), PowerPoint (.pptx), or text files">Add document…</button>
+                  <input type="file" id="workFile" accept=".pdf,.docx,.pptx,.txt,.md" multiple hidden>
+                  <input type="url" id="workUrl" placeholder="or paste a link: a page, a doc, or a whole website" aria-label="Link to your work">
+                  <button class="w" id="addWorkLinkBtn">Add link</button>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset class="collapsible" id="learnedBox">
+              <legend><button type="button" class="twisty" id="learnedToggle" aria-expanded="false" aria-controls="learnedBody"><span class="box" aria-hidden="true"></span>Saved answers <span id="learnedCount"></span></button></legend>
+              <div id="learnedBody" hidden>
+                <p class="hint">Answers you typed into orange fields. They're filled in for you next time, outlined orange so you check them, until you greenlight them with the square (orange = check it, green = greenlit). Long answers (like essays) aren't saved, since they're written for one company.</p>
+                <ul class="itemlist" id="learnedList"></ul>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Settings</legend>
+              <label id="hometownLabel">City search: where you want to work</label>
+              <small class="hint" style="display:block;margin:-2px 0 4px">Type a city and pick it from the list. Add as many as you like; each job is measured from the closest one.</small>
+              <div id="hometownList" role="group" aria-labelledby="hometownLabel"></div>
+              <button type="button" class="w" id="addHometown" style="margin-top:4px">Add a city</button>
+              <label for="setRadius" style="margin-top:8px">Job radius: <b id="radiusText">50 mi</b></label>
+              <div class="slider">
+                <input type="range" id="setRadius" min="0" max="14" step="1" value="5" aria-describedby="radiusText">
+                <div class="ticks" aria-hidden="true" style="--max:14"><span style="--v:0">0</span><span style="--v:5">50</span><span style="--v:10">100</span><span style="--v:11">150</span><span style="--v:12">200</span><span style="--v:13">250</span><span style="--v:14" class="end">300+</span></div>
+              </div>
+              <label class="check" style="margin-top:8px"><input type="checkbox" id="setRemote"> Open to remote work</label>
+              <p class="hint" style="margin:4px 0 0">Find only keeps jobs within your radius of one of these cities, plus remote jobs if you're open to remote. At 300+ it searches everywhere. Your list updates as soon as you save.</p>
+              <hr class="etched">
+              <label for="setBrowser">When you click Start applying, open jobs in:</label>
+              <select id="setBrowser" style="margin-bottom:10px">
+                <option value="chrome">My own Chrome (logged in), using the extension</option>
+                <option value="separate">A separate Chrome window (no extension needed)</option>
+              </select>
+              <label for="setGemini" style="margin-top:10px">Gemini API key (free, used only by the cover letter maker):</label>
+              <div class="row" style="flex-wrap:nowrap">
+                <input type="password" id="setGemini" placeholder="Paste your key here" autocomplete="off">
+                <button class="w" id="getKeyBtn" title="Opens Google AI Studio. Sign in with your Google account and click Create API key.">Get a free key</button>
+              </div>
+              <div class="row" style="margin-top:4px"><small id="geminiState"></small><button class="w mini" id="removeKeyBtn" title="Remove the saved key" hidden>✕</button></div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="savebar"><span class="msg" id="saveMsg">All changes saved.</span><button class="w default" id="saveBtn" disabled>Save</button></div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="tab" id="tab-history" hidden>
+        <div class="stats" id="stats"></div>
+        <div class="listview" style="max-height:none">
+          <table>
+            <colgroup><col style="width:90px"><col style="width:84px"><col style="width:20%"><col><col style="width:50px"><col style="width:50px"></colgroup>
+            <thead><tr><th>Date</th><th>Status</th><th>Company</th><th>Role</th><th>Fit</th><th></th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+    <div class="statusbar"><p id="sbMain">Connecting…</p><p id="sbQueue"></p><p id="sbSaved"></p></div>
+  </div>
+</div>
+
+<script>
+const T = new URLSearchParams(location.search).get('t');
+const $ = (id) => document.getElementById(id);
+const HOST = window.chrome && window.chrome.webview; // set when shown by "Apply Assistant.exe"
+if (HOST) document.documentElement.classList.add('hosted');
+// Shown inside Chrome's side panel (the extension's "Open beside the page"): fill the panel, no close button.
+const EMBEDDED = window.top !== window;
+if (EMBEDDED) document.documentElement.classList.add('embedded');
+let state = null;
+
+// ---- icons (classic style) ----
+const svg = (s) => 'data:image/svg+xml,' + encodeURIComponent(s);
+const ICONS = {
+  app: '/icon32.png',
+  warning: svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3 30 29H2z" fill="#ff0" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M14.5 11h3v10h-3zM14.5 23h3v3h-3z"/></svg>`),
+  error: svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#f00" stroke="#800000" stroke-width="1.5"/><path d="M10.5 10.5l11 11M21.5 10.5l-11 11" stroke="#fff" stroke-width="3.5"/></svg>`),
+  question: svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="15" r="13" fill="#fff" stroke="#000" stroke-width="1.5"/><path d="M8 25l-3 6 9-4" fill="#fff" stroke="#000" stroke-width="1.5"/><text x="16" y="22" font-size="19" font-weight="bold" text-anchor="middle" fill="#000080" font-family="Times New Roman,serif">?</text></svg>`),
+  info: svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="15" r="13" fill="#fff" stroke="#000" stroke-width="1.5"/><path d="M8 25l-3 6 9-4" fill="#fff" stroke="#000" stroke-width="1.5"/><rect x="14" y="7" width="4" height="4" fill="#000080"/><rect x="14" y="13" width="4" height="10" fill="#000080"/></svg>`),
+};
+
+// ---- helpers ----
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : String(kid));
+  return el;
+}
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: { 'x-token': T, 'content-type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+// Classic message box. Resolves with the label of the button pressed.
+function msgbox(text, { icon = 'info', buttons = ['OK'], title = 'Apply Assistant' } = {}) {
+  return new Promise((resolve) => {
+    const done = (b) => { overlay.remove(); document.removeEventListener('keydown', onKey, true); resolve(b); };
+    const btns = buttons.map((b, i) => h('button', { class: 'w' + (i === 0 ? ' default' : ''), onclick: () => done(b) }, b));
+    const overlay = h('div', { class: 'overlay' },
+      h('div', { class: 'window dialog', role: 'alertdialog', 'aria-modal': 'true', 'aria-label': title },
+        h('div', { class: 'titlebar' }, h('span', { class: 't' }, title), h('button', { class: 'tbtn close', 'aria-label': 'Close', onclick: () => done(buttons[buttons.length - 1]) })),
+        h('div', { class: 'content' }, h('img', { src: ICONS[icon], alt: '' }), h('div', { class: 'text' }, text)),
+        h('div', { class: 'buttons' }, btns)));
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); done(buttons[buttons.length - 1]); }
+    };
+    document.addEventListener('keydown', onKey, true);
+    document.body.append(overlay);
+    btns[0].focus();
+  });
+}
+const ask = async (text, icon = 'question') => (await msgbox(text, { icon, buttons: ['Yes', 'No'] })) === 'Yes';
+
+let sbTimer;
+let sbHold = false; // a short message is showing in the status bar
+function defaultStatus() {
+  if (!state) return 'Connecting…';
+  const r = state.runner;
+  return r.running ? (r.job ? 'Applying' : 'Waiting for jobs') : 'Ready';
+}
+function toast(msg, err = false) {
+  if (err) return msgbox(msg, { icon: 'error' });
+  $('sbMain').textContent = msg;
+  sbHold = true;
+  clearTimeout(sbTimer);
+  sbTimer = setTimeout(() => { sbHold = false; $('sbMain').textContent = defaultStatus(); }, 6000);
+}
+async function busy(btn, label, fn) {
+  const old = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = label;
+  document.body.classList.add('wait');
+  try { return await fn(); }
+  catch (e) { toast(e.message, true); }
+  finally { btn.disabled = false; btn.textContent = old; document.body.classList.remove('wait'); }
+}
+function parseNote(entry) {
+  const m = (entry.note || '').match(/^(.*?)\s\|\s(.*?)(?:\s\(([^()]*)\))?$/);
+  let host = '';
+  try { host = new URL(entry.url).hostname.replace(/^www\./, ''); } catch {}
+  if (m) return { title: m[2], company: m[1], place: m[3] || '' };
+  // Pasted without a name: the title and company from the job's posting (once it's been read), else the website.
+  if (!entry.note && entry.posting?.title) return { title: entry.posting.title, company: entry.posting.company || host, place: '' };
+  return { title: entry.note || host, company: entry.note ? host : '', place: '' };
+}
+
+// ---- instant tooltips (Windows 98 style; the browser's own ones wait about a second) ----
+const tipEl = h('div', { class: 'tooltip', role: 'tooltip' });
+document.body.append(tipEl);
+let tipFor = null;
+function hideTip() { tipEl.style.display = 'none'; tipFor = null; }
+function showTip(el) {
+  tipFor = el;
+  tipEl.textContent = el.dataset.tip;
+  tipEl.style.display = 'block';
+  const r = el.getBoundingClientRect();
+  const x = Math.min(Math.max(4, r.left), innerWidth - tipEl.offsetWidth - 4);
+  let y = r.bottom + 3;
+  if (y + tipEl.offsetHeight > innerHeight - 4) y = r.top - tipEl.offsetHeight - 3;
+  tipEl.style.left = `${x}px`;
+  tipEl.style.top = `${y}px`;
+}
+document.addEventListener('mouseover', (e) => {
+  const el = e.target instanceof Element ? e.target.closest('[title], [data-tip]') : null;
+  if (!el) return hideTip();
+  if (el.hasAttribute('title')) {
+    const t = el.getAttribute('title');
+    el.removeAttribute('title');
+    if (t) el.dataset.tip = t;
+  }
+  // Table cells only need a tooltip when their text is cut off.
+  if (!el.dataset.tip || (el.tagName === 'TD' && el.scrollWidth <= el.clientWidth)) return hideTip();
+  if (el !== tipFor) showTip(el);
+});
+document.addEventListener('mousedown', hideTip, true);
+document.addEventListener('mouseleave', hideTip);
+addEventListener('scroll', hideTip, true);
+
+// ---- tabs ----
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+function showTab(name) {
+  document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  document.querySelectorAll('.tab').forEach((s) => (s.hidden = s.id !== `tab-${name}`));
+  $('panel').scrollTop = 0;
+  if (name === 'info') loadInfo();
+  if (name === 'history') loadHistory();
+}
+
+// ---- menus & title bar ----
+document.querySelectorAll('.menu').forEach((menu) => {
+  const btn = menu.querySelector(':scope > button');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = !menu.classList.contains('open');
+    closeMenus();
+    if (open) { menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+  });
+  btn.addEventListener('mouseenter', () => {
+    if (document.querySelector('.menu.open') && !menu.classList.contains('open')) btn.click();
+  });
+});
+function closeMenus() {
+  document.querySelectorAll('.menu').forEach((m) => { m.classList.remove('open'); m.querySelector(':scope > button').setAttribute('aria-expanded', 'false'); });
+}
+document.addEventListener('click', closeMenus);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenus();
+  if (e.altKey && e.key === 'f') { e.preventDefault(); $('menuFile').querySelector('button').click(); }
+});
+document.querySelectorAll('.items button').forEach((b) => b.addEventListener('click', () => {
+  closeMenus();
+  const act = b.dataset.act;
+  if (act === 'find') { showTab('apply'); $('findBtn').click(); }
+  if (act === 'start') { showTab('apply'); start(); }
+  if (act === 'open-folder') api('/api/open', { target: 'folder' }).catch((e) => toast(e.message, true));
+  if (act === 'exit') closeApp();
+  if (act === 'extension') extensionSetup();
+}));
+
+// File → Set up Chrome extension: lets "Start applying" fill forms in your own, logged-in Chrome.
+async function extensionSetup() {
+  let folder = '';
+  try { folder = (await api('/api/extension/setup', {})).folder; } catch (e) { return toast(e.message, true); }
+  const step = (n, text, ...extra) => h('li', {}, h('b', {}, `${n}. `), text, ...extra);
+  const btn = (label, fn) => h('button', { class: 'w', style: 'margin:4px 6px 0 0', onclick: fn }, label);
+  const close = () => overlay.remove();
+  const overlay = h('div', { class: 'overlay' },
+    h('div', { class: 'window dialog', style: 'width:min(560px,94vw)', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Set up Chrome extension' },
+      h('div', { class: 'titlebar' }, h('span', { class: 't' }, 'Set up Chrome extension'), h('button', { class: 'tbtn close', 'aria-label': 'Close', onclick: close })),
+      h('div', { style: 'padding:12px 14px' },
+        h('p', {}, 'This lets jobs open in your normal, logged-in Chrome with the Fill panel. It takes about a minute, one time.'),
+        h('ol', { style: 'list-style:none;padding:0;margin:0' },
+          step(1, 'Open Chrome\'s extensions page.', h('br'), btn('Open chrome://extensions', () => api('/api/extension/setup', { step: 'chrome' }))),
+          h('li', { style: 'height:8px' }),
+          step(2, 'Turn on "Developer mode" (the switch in the top-right corner of that page).'),
+          h('li', { style: 'height:8px' }),
+          step(3, 'Click "Load unpacked" and choose this folder:', h('br'),
+            h('input', { type: 'text', value: folder, readonly: true, style: 'margin-top:4px', onfocus: (e) => e.target.select() }),
+            btn('Copy folder path', async (e) => { await navigator.clipboard.writeText(folder).catch(() => {}); e.target.textContent = 'Copied'; }),
+            btn('Show the folder', () => api('/api/extension/setup', { step: 'folder' }))),
+          h('li', { style: 'height:8px' }),
+          step(4, '"Apply Assistant" now shows in your extensions. Click Start applying here and the job opens in your Chrome.')),
+        h('p', { class: 'hint', style: 'margin-top:12px' }, 'The extension only works on job tabs this app opens (and pages those open), never runs on LinkedIn or Handshake, and talks only to this app on your computer. It updates itself when the app is updated. Leave Developer mode on.')),
+      h('div', { class: 'buttons' }, h('button', { class: 'w default', onclick: close }, 'OK'))));
+  document.body.append(overlay);
+}
+$('closeBtn').addEventListener('click', closeApp);
+async function closeApp() {
+  if (state?.runner.running && !(await ask('Apply Assistant is still applying. Stop and close it?', 'warning'))) return;
+  window.onbeforeunload = null;
+  if (HOST) return HOST.postMessage('close');
+  window.close();
+  setTimeout(() => msgbox('Close this window with the X in the top-right corner of the screen.'), 400);
+}
+
+// Inside "Apply Assistant.exe" (a frameless window) this title bar is the real one: drag, minimize, maximize, close.
+if (HOST) {
+  $('minBtn').addEventListener('click', () => HOST.postMessage('min'));
+  $('maxBtn').addEventListener('click', () => HOST.postMessage('max'));
+  const bar = document.querySelector('.app > .titlebar');
+  bar.addEventListener('mousedown', (e) => { if (e.button === 0 && !e.target.closest('button')) HOST.postMessage('drag'); });
+  bar.addEventListener('dblclick', (e) => { if (!e.target.closest('button')) HOST.postMessage('max'); });
+  HOST.addEventListener('message', (e) => {
+    const maximized = e.data === 'maximized';
+    document.documentElement.classList.toggle('maximized', maximized);
+    $('maxBtn').dataset.tip = maximized ? 'Restore' : 'Maximize';
+  });
+}
+
+// ---- live updates ----
+function connect() {
+  const es = new EventSource(`/api/events?t=${T}`);
+  es.addEventListener('state', (e) => { state = JSON.parse(e.data); render(); });
+  es.addEventListener('focus', () => HOST && HOST.postMessage('focus'));
+  es.onerror = () => { $('sbMain').textContent = 'Reconnecting…'; };
+}
+
+function render() {
+  const r = state.runner;
+  if (!sbHold) $('sbMain').textContent = defaultStatus();
+  $('sbQueue').textContent = `${state.queue.length} job${state.queue.length === 1 ? '' : 's'} in list`;
+  $('sbSaved').textContent = `${state.setup.savedAnswers} saved answer${state.setup.savedAnswers === 1 ? '' : 's'}`;
+  document.body.classList.toggle('wait', !!r.busy);
+  if (!HOST) window.onbeforeunload = r.running ? (e) => { e.preventDefault(); e.returnValue = ''; } : null;
+  renderSetup(state.setup);
+  renderNow(r);
+  renderQueue(state.queue, r);
+  renderHidden(state.hidden || []);
+  renderFinder(state.finder);
+  renderLetters(state);
+  if (tipFor && !tipFor.isConnected) hideTip();
+}
+
+function renderSetup(s) {
+  const issues = [...s.issues];
+  const needsExtension = state.browser?.mode === 'chrome' && !state.browser.extensionSetUp;
+  $('setupBanner').replaceChildren(
+    issues.length
+      ? h('fieldset', {}, h('legend', {}, 'To finish setting up'),
+          h('div', { class: 'banner' }, h('img', { src: ICONS.warning, alt: '' }),
+            h('div', { style: 'flex:1' }, h('ul', {}, issues.map((i) => h('li', {}, i)))),
+            h('button', { class: 'w', onclick: () => showTab('info') }, 'Open My info')))
+      : '',
+    needsExtension
+      ? h('fieldset', {}, h('legend', {}, 'Use your own Chrome'),
+          h('div', { class: 'banner' }, h('img', { src: ICONS.info, alt: '' }),
+            h('div', { style: 'flex:1' }, 'Jobs open in your normal, logged-in Chrome. To get the Fill panel there, set up the Apply Assistant extension once (about a minute).'),
+            h('button', { class: 'w', onclick: extensionSetup }, 'Set up extension')))
+      : '');
+}
+
+// The job you clicked in the list (the first one if you haven't picked).
+let selectedUrl = null;
+function selectedEntry() {
+  return state.queue.find((e) => e.url === selectedUrl) || state.queue[0] || null;
+}
+function selectJob(entry) {
+  selectedUrl = entry.url;
+  // Move the highlight without rebuilding the rows (rebuilding would break double-click).
+  document.querySelectorAll('#qList tr[data-url]').forEach((tr) => tr.classList.toggle('sel', tr.dataset.url === entry.url));
+  if ([...$('clJob').options].some((o) => o.value === entry.url)) {
+    $('clJob').value = entry.url; // the cover letter maker follows your pick
+    $('clOther').hidden = true;
+  }
+  renderNow(state.runner);
+}
+
+// Where the job is, remote / hybrid / on-site, relocation, and how that fits your location settings.
+function whereBox(w) {
+  const n = w.nearest;
+  const loc = n ? `${n.label}${n.miles != null ? ` · ${n.miles.toLocaleString()} mi from ${w.hometown}` : ''}` : w.places.join(', ') || 'Not stated';
+  const from = (x) => (x?.quote ? `From the job description: "${x.quote}"` : x?.from === 'listing' ? 'From the job listing' : '');
+  const val = (text, tip) => h('dd', tip ? { 'data-tip': tip, class: 'tipped' } : {}, text);
+  return h('fieldset', { class: 'where' }, h('legend', {}, 'Where'),
+    h('dl', {},
+      h('dt', {}, 'Location'), val(loc + (w.places.length > 1 ? ` (+${w.places.length - 1} more)` : ''), w.places.length > 1 ? w.places.join(' · ') : ''),
+      h('dt', {}, 'Work type'), val(w.workType.value || 'Not stated', from(w.workType)),
+      h('dt', {}, 'Relocation'), val(w.relocation.label, from(w.relocation))),
+    w.verdict ? h('div', { class: `verdict ${w.verdict.level}` }, `${{ good: '✓ ', warn: '⚠ ' }[w.verdict.level] || ''}${w.verdict.text}`) : '');
+}
+
+function renderNow(r) {
+  const card = $('nowCard');
+  if (!r.running) {
+    $('nowLegend').textContent = 'Ready to apply';
+    const pick = selectedEntry();
+    const n = pick && parseNote(pick);
+    card.replaceChildren(h('div', { class: 'idle' },
+      h('p', {}, state.queue.length ? `${state.queue.length} job${state.queue.length > 1 ? 's' : ''} in your list. Click one to choose it.` : 'Add a job link or find internships first.'),
+      h('div', { class: 'startrow' },
+        h('button', { class: 'w default big', onclick: start, disabled: !pick }, 'Start applying'),
+        pick
+          ? h('div', { class: 'pick', 'data-tip': pick.url },
+              h('small', {}, 'Applying to:'),
+              h('div', { class: 'picktitle' }, n.title),
+              h('div', {}, [n.company, n.place].filter(Boolean).join(' · ')))
+          : ''),
+      h('ol', { class: 'steps' },
+        h('li', {}, state.browser?.mode === 'separate' ? 'A Chrome window opens the job and shows how well it matches your resume.' : 'The job opens in your Chrome, and this shows how well it matches your resume.'),
+        h('li', {}, 'Click Apply on the site, then "Fill this page".'),
+        h('li', {}, 'Fill in the orange fields. Your answers are remembered for next time.'),
+        h('li', {}, 'Click Submit on the site yourself, then "Done, I submitted".'))));
+    return;
+  }
+  $('nowLegend').textContent = 'Now applying';
+  const j = r.job;
+  const parts = [];
+  if (j) {
+    const n = parseNote(j);
+    parts.push(h('p', { class: 'jobtitle' }, j.title || n.title || 'Loading job…'),
+      h('div', {}, [j.company || n.company, j.location || n.place].filter(Boolean).join(' · ')));
+    if (j.score != null) {
+      const word = j.score >= 7 ? 'strong match' : j.score >= 5 ? 'partial match' : 'weak match';
+      parts.push(h('div', { class: 'fitrow' }, h('span', {}, `Match: ${j.score}/10 (${word})`),
+        h('div', { class: 'progress', title: `${j.score} out of 10` }, h('div', { class: 'bar', style: `width:${j.score * 10}%` }))));
+    } else if (!j.summary && r.busy) {
+      parts.push(h('p', {}, 'Reading the job description…'));
+    }
+    if (j.summary) parts.push(h('p', {}, j.summary));
+    if (j.matched.length) parts.push(h('div', { class: 'skills' }, h('b', {}, 'On your resume or site:'), j.matched.join(', ')));
+    if (j.missing.length) parts.push(h('div', { class: 'skills' }, h('b', {}, 'Not on either:'), j.missing.join(', ')));
+    if (j.flags.length) parts.push(h('ul', { class: 'flags' }, j.flags.map((f) => h('li', {}, h('img', { src: ICONS.warning, alt: 'Warning' }), h('span', {}, f)))));
+    if (j.where) parts.push(whereBox(j.where));
+  } else {
+    parts.push(h('p', { class: 'jobtitle' }, 'Waiting for the next job'));
+  }
+  parts.push(h('div', { class: 'sunkbox statusbox' }, r.status, r.busy ? h('div', { class: 'progress marquee' }, h('div', { class: 'bar' })) : ''));
+  if (j) {
+    parts.push(h('div', { class: 'row' },
+      h('button', { class: 'w default', onclick: () => command('fill'), disabled: r.filling }, r.filling ? 'Filling…' : 'Fill this page'),
+      h('button', { class: 'w', onclick: done }, 'Done, I submitted'),
+      h('button', { class: 'w', onclick: () => command('skip') }, 'Skip job'),
+      h('label', { class: 'check autonext', 'data-tip': 'On: Done or Skip opens the next job in your list. Off: the app waits with no job open until you click Start applying (or ▶ on a job).' },
+        h('input', { type: 'checkbox', checked: state.autoNext !== false, onchange: (e) => api('/api/auto-next', { on: e.target.checked }).catch((x) => toast(x.message, true)) }),
+        'Open the next job automatically')),
+      h('div', { class: 'legend' },
+        h('span', {}, h('i', { style: 'background:#16a34a' }), 'Filled from your info or saved answers'),
+        h('span', {}, h('i', { style: 'background:#f97316' }), 'Needs you (remembered next time)')));
+    if (j.lastFill?.needs?.length) {
+      parts.push(h('div', { style: 'margin-top:10px' }, h('b', {}, 'Needs you on this page:'),
+        h('ul', { class: 'needs' }, j.lastFill.needs.map((x) => h('li', {}, x.question, x.note ? h('small', {}, x.note) : '')))));
+    }
+  }
+  parts.push(h('div', { style: 'text-align:right;margin-top:10px' }, h('button', { class: 'w', onclick: stop }, 'Stop applying')));
+  card.replaceChildren(...parts);
+}
+
+// Click a column heading to sort the list: "Company / place" by distance from your search cities (nearest first, then
+// farthest first), "Fit" by match score (best first, then worst first). The arrow shows only while the list is still
+// in that order.
+let listSort = { by: null, dir: null, order: '' };
+async function sortList(by) {
+  const again = listSort.by === by && $(by === 'fit' ? 'fitArrow' : 'placeArrow').textContent;
+  const dir = by === 'fit' ? (again && listSort.dir === 'best' ? 'worst' : 'best') : (again && listSort.dir === 'near' ? 'far' : 'near');
+  try {
+    const r = await api('/api/queue/sort', { by, dir });
+    listSort = { by, dir, order: r.order.join('|') };
+    if (state) renderQueue(state.queue, state.runner);
+    if (by === 'fit') toast(`Sorted by match, ${dir === 'best' ? 'best' : 'worst'} first.${r.unknown ? ` ${r.unknown} not scored yet are at the end.` : ''}`);
+    else toast(`Sorted by distance from ${r.hometown || 'your search cities'}, ${dir === 'near' ? 'nearest' : 'farthest'} first.${r.unknown ? ` ${r.unknown} with no known place are at the end.` : ''}`);
+  } catch (e) { toast(e.message, true); }
+}
+for (const [id, by] of [['placeHead', 'place'], ['fitHead', 'fit']]) {
+  $(id).addEventListener('click', () => sortList(by));
+  $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sortList(by); } });
+}
+
+function renderQueue(queue, r) {
+  const sorted = queue.map((e) => e.url).join('|') === listSort.order;
+  $('placeArrow').textContent = sorted && listSort.by === 'place' ? (listSort.dir === 'near' ? '▲' : '▼') : '';
+  $('fitArrow').textContent = sorted && listSort.by === 'fit' ? (listSort.dir === 'best' ? '▼' : '▲') : '';
+  const min = Number($('minFit').value) || 0;
+  $('qCount').textContent = queue.length ? `(${queue.length})` : '';
+  const list = $('qList');
+  if (!queue.length) {
+    list.replaceChildren(h('tr', { class: 'empty' }, h('td', { colspan: 5 }, 'No jobs yet. Paste a link above, or click "Find new internships".')));
+    return;
+  }
+  const picked = selectedEntry()?.url;
+  list.replaceChildren(...queue.map((e, i) => {
+    const n = parseNote(e);
+    const current = r.job && r.job.url === e.url;
+    const away = e.miles != null ? `${e.miles.toLocaleString()} mi` : e.remote ? 'Remote' : '';
+    // Distance first, so it shows even when the column is narrow.
+    // The job's closest city first ("New York City, NY +1 more"), since many jobs are offered in several places.
+    const place = e.place ? `${e.place}${e.more ? ` +${e.more} more` : ''}` : n.place;
+    const sub = [away && away !== place ? (e.approx ? `~${away}` : away) : '', n.company, place].filter(Boolean).join(' · ');
+    // Click a row to choose it; double-click to start applying with it.
+    const rowClick = (ev) => { if (!ev.target.closest('button, a')) selectJob(e); };
+    const rowDouble = (ev) => { if (!ev.target.closest('button, a') && !current) applyNow(e); };
+    // Below your Compatibility setting: grayed out (it stays in the list).
+    const low = min && e.fit != null && e.fit < min;
+    const fitTip = e.fit != null ? `Matches your resume and website ${e.fit}/10${low ? `, below your ${min}+ setting` : ''}` : "Not scored yet (or the job page couldn't be read)";
+    return h('tr', { 'data-url': e.url, class: [e.url === picked ? 'sel' : '', current ? 'cur' : '', low ? 'low' : ''].join(' ').trim(), onclick: rowClick, ondblclick: rowDouble },
+      h('td', {}, current ? '►' : i + 1),
+      h('td', { title: n.title }, n.title),
+      h('td', { title: sub }, sub),
+      h('td', { class: 'fit', title: fitTip }, e.fit != null ? e.fit : '–'),
+      h('td', { class: 'acts' }, h('div', { class: 'row' },
+        current ? '' : h('button', { class: 'w mini', 'data-tip': r.running ? 'Switch to applying to this job now' : 'Start applying with this job',
+          'aria-label': 'Apply to this job now', onclick: () => applyNow(e) }, '▶'),
+        h('button', { class: 'w mini', 'data-tip': 'Open the job page', 'aria-label': 'Open the job page', onclick: () => window.open(e.url, '_blank', 'noopener') }, '↗'),
+        current ? '' : h('button', { class: 'w mini', 'data-tip': 'Remove from list', 'aria-label': 'Remove from list', onclick: () => api('/api/queue/remove', { url: e.url }).catch((x) => toast(x.message, true)) }, '✕'))));
+  }));
+}
+
+// After a settings change: say how the job list changed.
+function tidied(t) {
+  if (!t || (!t.hidden && !t.restored)) return false;
+  const parts = [t.hidden ? `set aside ${t.hidden} job${t.hidden === 1 ? '' : 's'} that don't fit` : '', t.restored ? `brought back ${t.restored} that fit again` : ''].filter(Boolean);
+  toast(`Your job list updated: ${parts.join(', ')}.`);
+  return true;
+}
+
+// Jobs Find set aside because they don't fit your settings right now. They come back by themselves when they fit
+// again (on your next Find), or right away with "Bring back".
+let hiddenOpen = false;
+function renderHidden(hidden) {
+  const bar = $('hiddenBar');
+  if (!hidden.length) { bar.replaceChildren(); return; }
+  const restore = (url) => api('/api/hidden/restore', url ? { url } : {}).then((r) => toast(`Brought back ${r.restored} job${r.restored === 1 ? '' : 's'}.`)).catch((e) => toast(e.message, true));
+  bar.replaceChildren(
+    h('div', { class: 'row hiddenrow' },
+      h('span', { class: 'grow' }, `${hidden.length} job${hidden.length === 1 ? '' : 's'} set aside because ${hidden.length === 1 ? 'it doesn' : 'they don'}'t fit your settings.`),
+      h('button', { class: 'w', 'aria-expanded': String(hiddenOpen), onclick: () => { hiddenOpen = !hiddenOpen; renderHidden(hidden); } }, hiddenOpen ? 'Hide list' : 'Show'),
+      h('button', { class: 'w', onclick: () => restore() }, 'Bring all back')),
+    hiddenOpen ? h('div', { class: 'listview hiddenlist' }, h('table', {},
+      h('colgroup', {}, h('col'), h('col', { style: 'width:42%' }), h('col', { style: 'width:92px' })),
+      h('thead', {}, h('tr', {}, h('th', {}, 'Job'), h('th', {}, "Why it's set aside"), h('th', {}))),
+      h('tbody', {}, hidden.map((e) => {
+        const n = parseNote(e);
+        const job = [n.title || e.url, n.company].filter(Boolean).join(' · ');
+        return h('tr', {}, h('td', { title: job }, job), h('td', { title: e.reason }, e.reason),
+          h('td', {}, h('button', { class: 'w mini wide', onclick: () => restore(e.url) }, 'Bring back')));
+      })))) : '');
+}
+
+// LinkedIn / Handshake: pick a place, and the search opens in your Chrome. You browse it yourself; when a job sends
+// you to the company's site, paste that link into your job list.
+async function searchElsewhere(btn) {
+  document.querySelector('.popmenu')?.remove();
+  let places;
+  try { places = (await api('/api/search-places')).places; } catch (e) { return toast(e.message, true); }
+  const site = btn.dataset.site;
+  const name = site === 'linkedin' ? 'LinkedIn' : 'Handshake';
+  const go = async (place) => {
+    document.querySelector('.popmenu')?.remove();
+    try {
+      await api('/api/search-elsewhere', { site, place });
+      toast(`Opened a ${name} search in Chrome.${site === 'handshake' ? ' Set the location and job type filters on that page.' : ''} When a job sends you to the company's site, paste that link here.`);
+    } catch (e) { toast(e.message, true); }
+  };
+  if (site === 'handshake') return go('anywhere'); // Handshake: no place to pick (set it on its page)
+  const r = btn.getBoundingClientRect();
+  const menu = h('div', { class: 'items popmenu', role: 'menu', style: `left:${Math.round(r.left)}px;top:${Math.round(r.bottom)}px` },
+    places.map((p) => h('button', { role: 'menuitem', onclick: () => go(p.key) }, p.label)));
+  document.body.append(menu);
+  menu.querySelector('button')?.focus();
+  setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }));
+  menu.addEventListener('keydown', (e) => { if (e.key === 'Escape') { menu.remove(); btn.focus(); } });
+}
+$('liBtn').addEventListener('click', (e) => searchElsewhere(e.currentTarget));
+$('refreshBtn').addEventListener('click', (e) => busy(e.currentTarget, '⟳', async () => {
+  const t = await api('/api/refresh', {});
+  if (!tidied(t)) toast('Your job list already fits your settings.');
+}));
+$('hsBtn').addEventListener('click', (e) => searchElsewhere(e.currentTarget));
+
+// Start with the job you picked (it moves to the top of the list first).
+async function start() {
+  const pick = selectedEntry();
+  try {
+    if (pick && pick.url !== state.queue[0]?.url) await api('/api/apply-now', { url: pick.url });
+    else await api('/api/start', {});
+  } catch (e) { toast(e.message, true); }
+}
+async function applyNow(entry) {
+  if (state.runner.running && state.runner.job) {
+    const t = parseNote(entry).title;
+    if (!(await ask(`Switch to "${t}" now?\n\nThe job you're on stays in your list (it isn't marked as skipped).`))) return;
+  }
+  try { await api('/api/apply-now', { url: entry.url }); } catch (x) { toast(x.message, true); }
+}
+async function stop() { if (await ask('Stop applying and close the Apply Assistant browser?\nThe current job stays in your list.')) await api('/api/stop', {}); }
+async function command(type) { try { await api('/api/command', { type }); } catch (e) { toast(e.message, true); } }
+async function done() { if (await ask('Did you click Submit on the site?\nThis marks the job as submitted and opens the next one.')) command('done'); }
+
+$('addBtn').addEventListener('click', addLink);
+$('addUrl').addEventListener('keydown', (e) => e.key === 'Enter' && addLink());
+async function addLink() {
+  const text = $('addUrl').value.trim();
+  if (!text) return;
+  try {
+    const r = await api('/api/queue/add', { text });
+    if (r.blocked) msgbox(r.blocked, { icon: 'warning' });
+    else if (!r.found) msgbox("That doesn't look like a link. Copy the address from the company's job page and paste it here.", { icon: 'warning' });
+    else toast(r.added ? 'Added to your job list.' : 'That job is already in your list or already done.');
+    if (r.added) $('addUrl').value = '';
+  } catch (e) { toast(e.message, true); }
+}
+// "Import from tab": the Chrome extension tells this page which page you're looking at (the one beside the side panel,
+// or the one you were on before switching to this tab), and it's added to your job list.
+let askId = 0;
+function currentChromePage() {
+  return new Promise((resolve) => {
+    const id = ++askId;
+    const done = (page) => { window.removeEventListener('message', onMsg); clearTimeout(timer); resolve(page); };
+    const onMsg = (e) => { if (e.data?.type === 'jaa-current-page' && e.data.id === id) done(e.data.page); };
+    window.addEventListener('message', onMsg);
+    const timer = setTimeout(() => done(null), 1500); // no extension here (e.g. the desktop window)
+    window.postMessage({ type: 'jaa-current-page?', id }, location.origin); // the extension's helper on this page
+    if (EMBEDDED) window.parent.postMessage({ type: 'jaa-current-page?', id }, '*'); // the side panel around this page
+  });
+}
+$('importBtn').addEventListener('click', (e) => busy(e.currentTarget, 'Importing…', async () => {
+  const page = await currentChromePage();
+  if (!page) {
+    return msgbox('"Import from tab" works when this app is open in Chrome: click the Apply Assistant button in Chrome\'s toolbar, then "Open beside the page" (or "Open in a tab").\n\nHere, copy the job page\'s address and paste it in the box instead.', { title: 'Import from tab' });
+  }
+  if (page.error) {
+    const why = {
+      'cant-read': "Chrome didn't let the extension see that tab's address. Go to chrome://extensions, click the ↻ reload arrow on Apply Assistant, then reload the job page and try again.",
+      'extension reloaded': 'The Chrome extension was just updated. Close this panel (or tab) and open it again from the Apply Assistant button in Chrome\'s toolbar.',
+    }[page.error] || 'Go to the job page in Chrome first (a normal web page, not this app), then click Import from tab.';
+    return msgbox(why, { icon: 'warning', title: 'Import from tab' });
+  }
+  const r = await api('/api/queue/add', { text: page.url, title: page.title });
+  if (r.blocked) return msgbox(r.blocked, { icon: 'warning' });
+  toast(r.added ? `Added "${r.name || page.title || page.url}" to your job list.` : 'That job is already in your list or already done.');
+}));
+
+// ---- job types for "Find new internships" (tick as many as you like) ----
+let finderReady = false;
+const checkedTypes = () => [...$('jobTypeList').querySelectorAll('input[data-type]:checked')].map((c) => c.value);
+function updateJobTypeText() {
+  const picked = [...$('jobTypeList').querySelectorAll('input[data-type]:checked')].map((c) => c.closest('label').textContent);
+  syncCategoryBoxes();
+  $('jobTypeText').textContent = !picked.length ? '(none ticked)' : picked.length <= 2 ? picked.join(', ') : `${picked.length} job types`;
+  $('jobTypeBtn').dataset.tip = picked.join(', ') || 'Tick at least one job type';
+  $('customRow').hidden = !checkedTypes().includes('custom');
+}
+function renderFinder(f) {
+  if (finderReady) return; // after the first load, the checklist belongs to you
+  if (!f) {
+    $('jobTypeText').textContent = 'Restart Apply Assistant to load job types';
+    return;
+  }
+  const picked = new Set(f.selected);
+  const item = (key, label) => h('label', { role: 'option', 'data-label': label.toLowerCase() },
+    h('input', { type: 'checkbox', value: key, 'data-type': '', checked: picked.has(key), onchange: () => { updateJobTypeText(); saveJobTypes(); } }), label);
+  // Categories A to Z, each folded unless you've ticked something in it; job types A to Z inside.
+  // Then "Anything" and "Custom keywords…" at the bottom.
+  const cats = new Map();
+  for (const t of f.types) if (t.key !== 'any') (cats.get(t.category) || cats.set(t.category, []).get(t.category)).push(t);
+  const any = f.types.find((t) => t.key === 'any');
+  const filter = h('input', { type: 'text', class: 'typefilter', placeholder: 'Filter job types (e.g. nurse, teacher, design)', 'aria-label': 'Filter job types' });
+  filter.addEventListener('input', () => filterTypes(filter.value));
+  $('jobTypeList').replaceChildren(
+    filter,
+    ...[...cats.keys()].sort((a, b) => a.localeCompare(b)).map((cat) => {
+      const types = cats.get(cat).sort((a, b) => a.label.localeCompare(b.label));
+      const open = types.some((t) => picked.has(t.key));
+      const all = h('input', { type: 'checkbox', class: 'catall', 'aria-label': `Tick every ${cat} job type`, onchange: (e) => {
+        body.querySelectorAll('input[data-type]').forEach((c) => (c.checked = e.target.checked));
+        updateJobTypeText();
+        saveJobTypes();
+      } });
+      const count = h('small', { class: 'catcount' });
+      const twisty = h('button', { type: 'button', class: 'twisty', 'aria-expanded': String(open), onclick: () => setCatOpen(group, twisty.getAttribute('aria-expanded') !== 'true') },
+        h('span', { class: 'box', 'aria-hidden': 'true' }), h('b', {}, cat), ' ', count);
+      const body = h('div', { class: 'catbody', hidden: !open }, types.map((t) => item(t.key, t.label)));
+      const group = h('div', { class: 'cat', 'data-cat': cat.toLowerCase() }, h('div', { class: 'cathead' }, twisty, all), body);
+      return group;
+    }),
+    h('hr'),
+    any ? item('any', any.label) : '',
+    item('custom', 'Custom keywords…'),
+  );
+  $('customKw').value = f.keywords;
+  updateJobTypeText();
+  showKind(f.kind);
+  $('minFit').value = String(f.minScore || 0);
+  finderReady = true;
+}
+
+function setCatOpen(group, open) {
+  group.querySelector('.twisty').setAttribute('aria-expanded', String(open));
+  group.querySelector('.catbody').hidden = !open;
+}
+// Each category's tick-all box (ticked, partly ticked, or not) and its "2 of 13 ticked" count.
+function syncCategoryBoxes() {
+  for (const group of $('jobTypeList').querySelectorAll('.cat')) {
+    const boxes = [...group.querySelectorAll('input[data-type]')];
+    const on = boxes.filter((b) => b.checked).length;
+    const all = group.querySelector('.catall');
+    all.checked = on === boxes.length;
+    all.indeterminate = on > 0 && on < boxes.length;
+    group.querySelector('.catcount').textContent = on ? `(${on} of ${boxes.length} ticked)` : `(${boxes.length})`;
+  }
+}
+// Typing in the filter box shows only matching job types, with their categories opened.
+function filterTypes(text) {
+  const q = text.trim().toLowerCase();
+  for (const group of $('jobTypeList').querySelectorAll('.cat')) {
+    const catHit = q && group.dataset.cat.includes(q);
+    let any = false;
+    for (const label of group.querySelectorAll('.catbody label')) {
+      const hit = !q || catHit || label.dataset.label.includes(q);
+      label.hidden = !hit;
+      any ||= hit;
+    }
+    group.hidden = !any;
+    if (q) setCatOpen(group, any);
+    else setCatOpen(group, !!group.querySelector('input[data-type]:checked'));
+  }
+}
+
+// The Internships ⇄ Full-time switch: what "Find" looks for.
+let jobKind = 'intern';
+const KIND_WORDS = { intern: { button: 'Internships', plural: 'internships', one: 'internship' }, fulltime: { button: 'Full-time', plural: 'jobs', one: 'job' } };
+function showKind(kind) {
+  jobKind = kind === 'fulltime' ? 'fulltime' : 'intern';
+  const w = KIND_WORDS[jobKind];
+  const other = jobKind === 'intern' ? 'full-time entry-level jobs' : 'internships';
+  $('kindBtn').textContent = w.button;
+  $('kindBtn').dataset.tip = `Finding ${jobKind === 'intern' ? 'internships' : 'full-time entry-level jobs'}. Click to switch to ${other}.`;
+  $('kindBtn').setAttribute('aria-label', `Finding ${w.plural}. Click to switch to ${other}.`);
+  $('findBtn').textContent = `Find new ${w.plural}`;
+  document.querySelector('.items [data-act="find"]').textContent = `Find new ${w.plural}`;
+}
+$('minFit').addEventListener('change', async () => {
+  if (state) renderQueue(state.queue, state.runner); // gray out jobs below it
+  try { tidied(await api('/api/finder-min', { min: Number($('minFit').value) })); } catch (e) { toast(e.message, true); }
+});
+$('kindBtn').addEventListener('click', async () => {
+  const next = jobKind === 'intern' ? 'fulltime' : 'intern';
+  showKind(next);
+  try { tidied(await api('/api/finder-kind', { kind: next })); } catch (e) { toast(e.message, true); }
+});
+function saveJobTypes() {
+  const types = checkedTypes();
+  if (!types.length) return; // keep the last saved choice until something is ticked
+  api('/api/finder', { types, keywords: $('customKw').value }).catch((e) => toast(e.message, true));
+}
+function openJobTypes(open) {
+  $('jobTypeList').hidden = !open;
+  $('jobTypeBtn').setAttribute('aria-expanded', String(open));
+  if (open) $('jobTypeList').querySelector('input')?.focus();
+}
+$('jobTypeBtn').addEventListener('click', (e) => { e.stopPropagation(); openJobTypes($('jobTypeList').hidden); });
+$('jobTypeList').addEventListener('click', (e) => e.stopPropagation());
+document.addEventListener('click', () => openJobTypes(false));
+$('jobMulti').addEventListener('keydown', (e) => { if (e.key === 'Escape') { openJobTypes(false); $('jobTypeBtn').focus(); } });
+$('customKw').addEventListener('change', saveJobTypes);
+$('customKw').addEventListener('keydown', (e) => e.key === 'Enter' && $('findBtn').click());
+
+$('findBtn').addEventListener('click', (e) => {
+  openJobTypes(false);
+  const types = checkedTypes();
+  if (!types.length) {
+    msgbox('Tick at least one job type first.', { icon: 'warning' });
+    return;
+  }
+  if (types.includes('custom') && !$('customKw').value.trim()) {
+    msgbox('Type a few keywords for "Custom keywords", separated by commas.\nFor example: game design, architecture, fashion', { icon: 'warning' });
+    return;
+  }
+  busy(e.currentTarget, 'Searching…', async () => {
+    const r = await api('/api/find', { types, keywords: $('customKw').value });
+    const from = Object.entries(r.sources || {}).sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s} ${n}`).join(', ');
+    const w = KIND_WORDS[jobKind];
+    const notes = [
+      r.hiddenNow ? `Set aside ${r.hiddenNow} job${r.hiddenNow === 1 ? '' : 's'} in your list that no longer fit your settings (see below the list).` : '',
+      r.restored ? `Brought back ${r.restored} set-aside job${r.restored === 1 ? '' : 's'} that fit again.` : '',
+      r.near && `Only jobs ${r.near}.`,
+      r.minScore && r.belowMin ? `Skipped ${r.belowMin} that matched below ${r.minScore}/10.` : '',
+      r.minScore && r.unscored ? `${r.unscored} couldn't be scored (their page couldn't be read), so they were added anyway. They show "–" under Fit.` : '',
+    ].filter(Boolean).join('\n');
+    msgbox(r.added
+      ? `Added ${r.added} new ${r.added > 1 ? w.plural : w.one} to your job list.\n\nSearched: ${r.label}${from ? `\nFrom: ${from}` : ''}${notes ? `\n\n${notes}` : ''}`
+      : `No new ${w.plural} right now.\n\nSearched: ${r.label}${notes ? `\n${notes}` : ''}\n\nJobs already in your list or already applied to aren't counted again. Try ticking more job types, a lower Compatibility, a bigger radius, or check back in a few days.`,
+      { title: `Find new ${w.plural}` });
+  });
+});
+
+// ---- Cover letter maker ----
+let clQueueKey = '';
+let clToneReady = false;
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+
+function renderLetters(st) {
+  if (!st.letters) return;
+  // Job choices: your job list (current job first), plus "Other job".
+  const key = st.queue.map((e) => e.url).join('|') + (st.runner.job?.url || '');
+  if (key !== clQueueKey) {
+    clQueueKey = key;
+    const sel = $('clJob');
+    const keep = sel.value;
+    const current = st.runner.job?.url;
+    const entries = [...st.queue].sort((a, b) => (b.url === current) - (a.url === current));
+    sel.replaceChildren(
+      ...entries.map((e) => {
+        const n = parseNote(e);
+        return h('option', { value: e.url }, `${e.url === current ? '► ' : ''}${n.title}${n.company ? `, ${n.company}` : ''}`);
+      }),
+      h('option', { value: 'other' }, 'Other job (paste the description)…'),
+    );
+    if ([...sel.options].some((o) => o.value === keep)) sel.value = keep;
+    else if (current) sel.value = current;
+    $('clOther').hidden = sel.value !== 'other';
+  }
+  if (!clToneReady) {
+    $('clTone').replaceChildren(...st.letters.tones.map((t) => h('option', { value: t.key }, t.label)), h('option', { value: 'custom' }, 'Custom…'));
+    $('clTone').value = store.get('clTone') || 'humanistic';
+    $('clCustomTone').value = store.get('clCustomTone') || '';
+    document.querySelectorAll('.clcustom').forEach((el) => (el.hidden = $('clTone').value !== 'custom'));
+    clToneReady = true;
+  }
+  $('clHint').textContent = st.letters.hasKey ? '' : 'Needs your free Gemini key (My info → Settings).';
+}
+$('clJob').addEventListener('change', () => { $('clOther').hidden = $('clJob').value !== 'other'; });
+$('clTone').addEventListener('change', () => {
+  store.set('clTone', $('clTone').value);
+  document.querySelectorAll('.clcustom').forEach((el) => (el.hidden = $('clTone').value !== 'custom'));
+});
+$('clCustomTone').addEventListener('change', () => store.set('clCustomTone', $('clCustomTone').value));
+
+function letterRequest() {
+  const other = $('clJob').value === 'other';
+  const entry = state.queue.find((e) => e.url === $('clJob').value);
+  return {
+    url: other ? undefined : $('clJob').value,
+    note: entry?.note,
+    company: $('clCompany').value.trim(),
+    title: $('clTitle').value.trim(),
+    description: $('clDesc').value,
+    tone: $('clTone').value,
+    customTone: $('clCustomTone').value,
+    notes: $('clNotes').value.trim(),
+  };
+}
+
+$('clWrite').addEventListener('click', async (e) => {
+  if (!state?.letters?.hasKey) {
+    const go = await ask('The cover letter maker uses Google\'s free Gemini API, which needs a free key.\n\nAdd your key in My info → Settings now?', 'info');
+    if (go) { showTab('info'); $('setGemini').focus(); }
+    return;
+  }
+  const req = letterRequest();
+  if (!req.url && $('clJob').value !== 'other') return msgbox('Add a job to your list first, or choose "Other job" and paste the description.', { icon: 'warning' });
+  if (!req.url && req.description.trim().length < 200) return msgbox('Paste the job description first (the whole thing works best).', { icon: 'warning' });
+  if (req.tone === 'custom' && !req.customTone.trim()) return msgbox('Describe the style you want in "Your style".', { icon: 'warning' });
+  await busy(e.currentTarget, 'Writing… (about 10–20 seconds)', async () => {
+    const r = await api('/api/cover-letter/write', req);
+    openLetterEditor(r, req);
+  });
+});
+
+// ---- Answer an application question (uses the job, tone and "mention" chosen above) ----
+const qaLimit = () => {
+  const [unit, n] = $('qaLimit').value.split(':');
+  return unit ? { unit, n: Number(n) } : null;
+};
+function showAnswerCount() {
+  const text = $('qaAnswer').value.trim();
+  const words = text ? text.split(/\s+/).length : 0;
+  const lim = qaLimit();
+  const over = lim && (lim.unit === 'w' ? words > lim.n : text.length > lim.n);
+  $('qaCount').textContent = `${words} words · ${text.length.toLocaleString()} characters${over ? ` (over the ${lim.n.toLocaleString()} ${lim.unit === 'w' ? 'word' : 'character'} limit: trim it before pasting)` : ''}`;
+  $('qaCount').classList.toggle('over', !!over);
+}
+async function writeAnswer(btn) {
+  if (!state?.letters?.hasKey) {
+    const go = await ask('Answering questions uses Google\'s free Gemini API, which needs a free key.\n\nAdd your key in My info → Settings now?', 'info');
+    if (go) { showTab('info'); $('setGemini').focus(); }
+    return;
+  }
+  const question = $('qaQuestion').value.trim();
+  if (question.length < 5) { $('qaQuestion').focus(); return msgbox('Paste the question from the application first.', { icon: 'warning' }); }
+  const req = letterRequest();
+  if (!req.url && $('clJob').value !== 'other') return msgbox('Add a job to your list first, or choose "Other job" and paste the description.', { icon: 'warning' });
+  if (!req.url && req.description.trim().length < 200) return msgbox('Paste the job description first (the whole thing works best).', { icon: 'warning' });
+  if (req.tone === 'custom' && !req.customTone.trim()) return msgbox('Describe the style you want in "Your style".', { icon: 'warning' });
+  await busy(btn, 'Writing… (about 10 seconds)', async () => {
+    const r = await api('/api/question/answer', { ...req, question, limit: $('qaLimit').value });
+    $('qaOut').hidden = false;
+    $('qaAnswer').value = r.answer;
+    showAnswerCount();
+    $('qaBasis').replaceChildren(...(r.basedOn.length
+      ? [h('b', {}, 'How this answer connects to the job:'), h('ul', {}, r.basedOn.map((b) => h('li', {}, h('b', {}, b.asked), ' → ', b.experience)))]
+      : []),
+    ...(/\[[^\]]+\]/.test(r.answer) ? [h('div', { class: 'gaps' }, 'Replace the [bracketed notes] with your own details before pasting.')] : []));
+  });
+}
+$('qaWrite').addEventListener('click', (e) => writeAnswer(e.currentTarget));
+$('qaAgain').addEventListener('click', (e) => writeAnswer(e.currentTarget));
+$('qaAnswer').addEventListener('input', showAnswerCount);
+$('qaLimit').addEventListener('change', () => { if (!$('qaOut').hidden) showAnswerCount(); });
+$('qaCopy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('qaAnswer').value.trim()); toast('Copied. Paste it into the application.'); }
+  catch { $('qaAnswer').select(); document.execCommand('copy'); toast('Copied.'); }
+});
+
+function letterElement(L) {
+  return h('div', { class: 'letter', contenteditable: 'true', spellcheck: 'true' },
+    h('div', { class: 'name' }, L.sender.name),
+    h('div', { class: 'contact' }, L.sender.lines.flatMap((line, i) => (i ? [h('br'), line] : [line]))),
+    h('div', { class: 'date' }, L.date),
+    h('div', { class: 'recipient' }, h('div', { class: 'org' }, L.recipient.org), L.recipient.lines.map((line) => h('div', {}, line))),
+    h('p', { class: 'greeting' }, L.greeting),
+    L.paragraphs.map((p) => h('p', {}, p)),
+    h('p', { class: 'closing' }, L.closing),
+    h('p', { class: 'signature' }, L.signature));
+}
+
+// "How this letter connects to the job": the job needs the letter ties to your real experience (not in the PDF).
+function connectionsBox(L) {
+  const links = L.connections || [];
+  return h('div', { class: 'links' },
+    h('b', {}, 'How this letter connects to the job:'),
+    links.length
+      ? h('ul', {}, links.map((c) => h('li', {}, 'The job asks for ', h('b', {}, c.jobNeed), ' → your ', h('b', {}, c.experience))))
+      : h('div', {}, 'No clear connections were found. Try "Write again", or add more detail to your resume.'),
+    L.gaps?.length ? h('div', { class: 'gaps' }, `Not on your resume, so not claimed: ${L.gaps.join(', ')}`) : '');
+}
+
+function openLetterEditor(result, req) {
+  const company = result.company || req.company || 'Company';
+  const title = result.title || req.title || '';
+  let letterEl = letterElement(result.letter);
+  let linksEl = connectionsBox(result.letter);
+  const paper = h('div', { class: 'paper' }, letterEl);
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey, true); };
+  const onKey = (ev) => { if (ev.key === 'Escape' && !document.querySelector('.overlay .dialog')) close(); };
+  const desktopBtn = h('button', { class: 'w default', 'data-tip': 'Save the PDF straight to your Desktop', onclick: (ev) => busy(ev.currentTarget, 'Exporting…', async () => {
+    const r = await api('/api/cover-letter/export', { html: letterEl.outerHTML, company, title });
+    msgbox(`Saved to your Desktop as:\n"${r.name}"\n\nDrag it from your Desktop into the application's cover letter upload.`, { title: 'Cover letter exported' });
+  }) }, 'Export to Desktop');
+  const fileName = `${[company, title, 'Cover Letter'].filter(Boolean).join(' - ').replace(/[<>:"/\\|?*]+/g, ' ')}.pdf`;
+  const saveAsBtn = h('button', { class: 'w', 'data-tip': 'Choose a folder and file name', onclick: async (ev) => {
+    const btn = ev.currentTarget;
+    // The Save window has to open right away (browsers only allow it straight after a click); the PDF is made after.
+    let handle = null;
+    if (window.showSaveFilePicker) {
+      try {
+        handle = await window.showSaveFilePicker({
+          id: 'cover-letters', // remembers the last folder you used
+          startIn: 'desktop',
+          suggestedName: fileName,
+          types: [{ description: 'PDF document', accept: { 'application/pdf': ['.pdf'] } }],
+        });
+      } catch (e) {
+        if (e.name === 'AbortError') return; // you closed the Save window
+        return toast(e.message, true);
+      }
+    }
+    busy(btn, 'Exporting…', async () => {
+      const res = await fetch('/api/cover-letter/pdf', {
+        method: 'POST',
+        headers: { 'x-token': T, 'content-type': 'application/json' },
+        body: JSON.stringify({ html: letterEl.outerHTML, company, title }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Export failed');
+      const blob = await res.blob();
+      if (handle) {
+        const w = await handle.createWritable();
+        await w.write(blob);
+        await w.close();
+        msgbox(`Saved as "${handle.name}".`, { title: 'Cover letter exported' });
+      } else {
+        // No Save window available here: download it instead.
+        const a = h('a', { href: URL.createObjectURL(blob), download: fileName });
+        document.body.append(a);
+        a.click();
+        a.remove();
+      }
+    });
+  } }, 'Export to…');
+  const againBtn = h('button', { class: 'w', onclick: async (ev) => {
+    const btn = ev.currentTarget;
+    if (!(await ask('Write a new version? Your edits to this one will be replaced.'))) return;
+    busy(btn, 'Writing…', async () => {
+      const r = await api('/api/cover-letter/write', req);
+      const fresh = letterElement(r.letter);
+      letterEl.replaceWith(fresh);
+      letterEl = fresh;
+      const freshLinks = connectionsBox(r.letter);
+      linksEl.replaceWith(freshLinks);
+      linksEl = freshLinks;
+    });
+  } }, 'Write again');
+  const overlay = h('div', { class: 'overlay' },
+    h('div', { class: 'window editor', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Cover letter' },
+      h('div', { class: 'titlebar' }, h('span', { class: 't' }, `Cover letter: ${title ? `${title}, ` : ''}${company}`), h('button', { class: 'tbtn close', 'aria-label': 'Close', onclick: close })),
+      h('div', { class: 'tools' }, desktopBtn, saveAsBtn, againBtn, h('button', { class: 'w', onclick: close }, 'Close'),
+        h('span', { class: 'hint' }, `Click anywhere on the letter to edit it. Tone: ${$('clTone').selectedOptions[0]?.textContent}${result.letter.model ? ` · ${result.letter.model}` : ''}`)),
+      linksEl,
+      paper));
+  document.addEventListener('keydown', onKey, true);
+  document.body.append(overlay);
+}
+
+// ---- My info ----
+const LABELS = {
+  firstName: 'First name', lastName: 'Last name', preferredName: 'Preferred name', pronouns: 'Pronouns', email: 'Email', phone: 'Phone',
+  phoneWithCountryCode: 'Phone with country code', street: 'Street', city: 'City', state: 'State', zip: 'ZIP', country: 'Country',
+  portfolio: 'Portfolio', linkedin: 'LinkedIn', github: 'GitHub', other: 'Other link', school: 'School', officialSchoolName: 'Official school name',
+  degree: 'Degree', degreeStatus: 'Degree status', major: 'Major', gpa: 'GPA', start: 'Started', startYearMonth: 'Started (YYYY-MM)',
+  graduation: 'Graduation', graduationYearMonth: 'Graduation (YYYY-MM)', authorizedToWorkInUS: 'Authorized to work in the US',
+  needsSponsorshipNowOrFuture: 'Need visa sponsorship (now or future)', usCitizen: 'US citizen', earliestStartDate: 'Earliest start date',
+  earliestStartYearMonth: 'Earliest start (YYYY-MM)', internshipTerms: 'Availability notes', willingToRelocate: 'Willing to relocate',
+  openToRemote: 'Open to remote', openToHybridOrOnsite: 'Open to hybrid / on-site', everServedInMilitary: 'Served in the military',
+  years: 'Years of work experience (internships and freelance count)', over18: 'Over 18', howDidYouHearDefault: '"How did you hear about us?" default', salaryExpectation: 'Salary expectation',
+  gender: 'Gender', raceEthnicity: 'Race / ethnicity', hispanicOrLatino: 'Hispanic or Latino', veteranStatus: 'Veteran status',
+  disabilityStatus: 'Disability status', sexualOrientation: 'Sexual orientation', transgender: 'Transgender',
+};
+// Fields that get a dropdown instead of a text box.
+const YES_NO = ['Yes', 'No'];
+const DECLINE = 'Decline to self-identify';
+const CHOICES = {
+  'workAuthorization.authorizedToWorkInUS': YES_NO,
+  'workAuthorization.needsSponsorshipNowOrFuture': YES_NO,
+  'workAuthorization.usCitizen': YES_NO,
+  'availability.willingToRelocate': YES_NO,
+  'availability.openToRemote': YES_NO,
+  'availability.openToHybridOrOnsite': YES_NO,
+  'experience.years': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'],
+  'other.everServedInMilitary': YES_NO,
+  'other.over18': YES_NO,
+  'other.howDidYouHearDefault': ['Company website', 'LinkedIn', 'Handshake', 'Job board', 'University career center', 'Career fair',
+    'Referral from a friend or employee', 'Social media', 'Other'],
+  'eeo.gender': ['Female', 'Male', 'Non-binary', DECLINE],
+  'eeo.raceEthnicity': ['American Indian or Alaska Native', 'Asian', 'Black or African American', 'Hispanic or Latino',
+    'Native Hawaiian or Other Pacific Islander', 'White', 'Two or more races', DECLINE],
+  'eeo.hispanicOrLatino': ['Yes', 'No', DECLINE],
+  'eeo.veteranStatus': ['I am not a protected veteran', 'I identify as one or more of the classifications of protected veteran', DECLINE],
+  'eeo.disabilityStatus': ['Yes, I have a disability (or previously had a disability)', 'No, I do not have a disability', DECLINE],
+  'eeo.sexualOrientation': ['Heterosexual or straight', 'Gay or lesbian', 'Bisexual', 'Queer', 'Asexual', 'Other', DECLINE],
+  'eeo.transgender': ['Yes', 'No', DECLINE],
+};
+const SECTIONS = { address: 'Address', links: 'Links', education: 'Education', workAuthorization: 'Work authorization',
+  experience: 'Experience', availability: 'Availability', other: 'Other questions', eeo: 'Voluntary self-identification (EEO)' };
+const human = (k) => LABELS[k] || k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (c) => c.toUpperCase());
+
+let info = null;
+let dirty = false;
+function markDirty() { dirty = true; $('saveBtn').disabled = false; $('saveMsg').textContent = 'You have unsaved changes.'; }
+
+async function loadInfo() {
+  if (dirty) return;
+  try { info = await api('/api/profile'); } catch (e) { return toast(e.message, true); }
+  const basics = Object.entries(info.profile).filter(([, v]) => typeof v !== 'object' || v === null);
+  const groups = Object.entries(info.profile).filter(([, v]) => v && typeof v === 'object' && !Array.isArray(v));
+  const fieldFor = (path, key, value) => {
+    const choices = CHOICES[path];
+    let control;
+    if (choices) {
+      const list = value && !choices.includes(value) ? [value, ...choices] : choices; // keep anything already saved
+      control = h('select', { id: `pf-${path}`, 'data-path': path, onchange: markDirty },
+        h('option', { value: '' }, '(blank: ask me each time)'),
+        list.map((c) => h('option', { value: c, selected: c === value }, c)));
+    } else {
+      control = h('input', { type: 'text', id: `pf-${path}`, 'data-path': path, value: value ?? '', oninput: markDirty });
+    }
+    return h('div', {}, h('label', { for: `pf-${path}` }, human(key) + ':'), control);
+  };
+  $('profileForm').replaceChildren(
+    h('fieldset', {}, h('legend', {}, 'Basics'), h('div', { class: 'form-grid' }, basics.map(([k, v]) => fieldFor(k, k, v)))),
+    ...groups.map(([g, obj]) => h('fieldset', {}, h('legend', {}, SECTIONS[g] || human(g)),
+      h('div', { class: 'form-grid' }, Object.entries(obj).filter(([k]) => !IN_SETTINGS.has(`${g}.${k}`))
+        .map(([k, v]) => fieldFor(`${g}.${k}`, k, typeof v === 'object' ? JSON.stringify(v) : v))))));
+  const s = info.settings;
+  $('hometownList').replaceChildren(...(s.hometowns.length ? s.hometowns : ['']).map(hometownRow));
+  $('setRadius').value = radiusIndex(s.radiusMiles);
+  showRadius();
+  $('setRemote').checked = !/^no/i.test(info.profile.availability?.openToRemote || '');
+  $('setBrowser').value = state?.browser?.mode || 'chrome';
+  $('setGemini').value = '';
+  $('geminiState').textContent = info.settings.hasGeminiKey ? '✓ Key saved. Paste a new one to replace it.' : 'No key yet. It takes about a minute to get one.';
+  $('removeKeyBtn').hidden = !info.settings.hasGeminiKey;
+  renderResumes();
+  renderLearned();
+  dirty = false; $('saveBtn').disabled = true; $('saveMsg').textContent = 'All changes saved.';
+}
+
+// Settings → where you want to work. "Open to remote" is your answer in My info (availability), shown here instead.
+const IN_SETTINGS = new Set(['availability.openToRemote']);
+// The radius slider's stops: every 10 miles up to 100, then 150, 200, 250, and 300+ (null = any distance).
+const RADIUS_STOPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, null];
+const radiusValue = () => RADIUS_STOPS[Number($('setRadius').value)] ?? null;
+function radiusIndex(miles) {
+  if (miles == null) return RADIUS_STOPS.length - 1;
+  let best = 0;
+  RADIUS_STOPS.forEach((v, i) => { if (v != null && Math.abs(v - miles) < Math.abs(RADIUS_STOPS[best] - miles)) best = i; });
+  return best;
+}
+function showRadius() {
+  const r = radiusValue();
+  $('radiusText').textContent = r == null ? '300+ mi (anywhere)' : `${r} mi`;
+}
+$('setRadius').addEventListener('input', () => { showRadius(); markDirty(); });
+$('setRemote').addEventListener('change', markDirty);
+
+// City search: one box per city. As you type, a list of matching cities drops down; pick one so the right city is used.
+// A blank first box means your address city.
+function hometownRow(value) {
+  const input = h('input', { type: 'text', value, 'aria-label': 'City', autocomplete: 'off', role: 'combobox', 'aria-expanded': 'false', 'aria-autocomplete': 'list' });
+  const list = h('div', { class: 'citylist', role: 'listbox', hidden: true });
+  const status = h('small', { class: 'hint htstate' }, ' ');
+  const row = h('div', { class: 'hrow' }, h('div', { class: 'citybox' }, input, list),
+    h('button', { type: 'button', class: 'w mini', 'data-tip': 'Remove this city', 'aria-label': 'Remove this city', onclick: () => {
+      row.remove();
+      if (!$('hometownList').children.length) $('hometownList').append(hometownRow(''));
+      refreshHometownHints();
+      markDirty();
+    } }, '✕'),
+    status);
+  let timer = null;
+  let items = [];
+  let active = -1;
+  const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); active = -1; };
+  const pick = (c) => {
+    input.value = c.value;
+    close();
+    status.textContent = `✓ ${c.place}`;
+    markDirty();
+  };
+  const highlight = () => [...list.children].forEach((el, i) => el.classList.toggle('on', i === active));
+  const people = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : `${Math.max(1, Math.round(n / 1000))}k`);
+  async function suggest() {
+    const q = input.value.trim();
+    if (q.length < 2) { close(); return; }
+    try {
+      const r = await api(`/api/place-suggest?q=${encodeURIComponent(q)}`);
+      if (input.value.trim() !== q) return; // typed more since
+      items = r.cities;
+      active = -1;
+      list.replaceChildren(...(items.length
+        ? items.map((c, i) => h('div', { role: 'option', class: 'opt', onmousedown: (e) => { e.preventDefault(); pick(c); }, onmousemove: () => { active = i; highlight(); } },
+            c.place, c.population ? h('small', {}, ` · ${people(c.population)} people`) : ''))
+        : [h('div', { class: 'opt none' }, 'No cities start with that. Check the spelling.')]));
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+    } catch { close(); }
+  }
+  input.addEventListener('input', () => {
+    markDirty();
+    status.textContent = ' ';
+    clearTimeout(timer);
+    timer = setTimeout(() => { suggest(); checkHometown(row); }, 150);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (list.hidden || !items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(items.length - 1, active + 1); highlight(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(0, active - 1); highlight(); }
+    else if (e.key === 'Enter') { e.preventDefault(); pick(items[Math.max(0, active)]); }
+    else if (e.key === 'Escape') close();
+  });
+  input.addEventListener('blur', () => setTimeout(close, 120));
+  setTimeout(() => { refreshHometownHints(); checkHometown(row); });
+  return row;
+}
+function refreshHometownHints() {
+  const rows = [...$('hometownList').children];
+  rows.forEach((row, i) => {
+    row.querySelector('input').placeholder = i === 0 && info?.settings.hometownDefault ? `${info.settings.hometownDefault} (your address city)` : 'Start typing a city, e.g. Chicago';
+  });
+}
+// The line under each box: which city the app will use, or that it can't tell yet.
+async function checkHometown(row) {
+  const rows = [...$('hometownList').children];
+  const typed = () => row.querySelector('input').value.trim();
+  const q = typed() || (rows[0] === row && rows.length === 1 ? info?.settings.hometownDefault || '' : '');
+  const el = row.querySelector('.htstate');
+  if (!q) { el.textContent = rows.length === 1 ? 'Add a city to see how far away each job is.' : ''; return; }
+  try {
+    const r = await api(`/api/place?q=${encodeURIComponent(q)}`);
+    if (typed() && typed() !== q) return; // typed more since
+    el.textContent = r.label ? `✓ ${r.label}${typed() ? '' : ' (your address city)'}` : '⚠ Not a city yet. Keep typing and pick one from the list.';
+  } catch { el.textContent = ' '; }
+}
+const hometownValues = () => [...$('hometownList').querySelectorAll('input')].map((i) => i.value.trim()).filter(Boolean);
+$('addHometown').addEventListener('click', () => {
+  const row = hometownRow('');
+  $('hometownList').append(row);
+  row.querySelector('input').focus();
+  markDirty();
+});
+$('setBrowser').addEventListener('change', async () => {
+  try {
+    await api('/api/browser-mode', { mode: $('setBrowser').value });
+    toast($('setBrowser').value === 'chrome' ? 'Jobs will open in your own Chrome.' : 'Jobs will open in a separate Chrome window.');
+  } catch (e) { toast(e.message, true); }
+});
+$('setGemini').addEventListener('input', markDirty);
+$('getKeyBtn').addEventListener('click', () => {
+  window.open('https://aistudio.google.com/apikey', '_blank', 'noopener');
+  msgbox('In the page that opened:\n1. Sign in with your Google account.\n2. Click "Create API key".\n3. Copy the key, paste it in the box here, and click Save.\n\nIt\'s free. On the free tier Google may use what you send to improve its products, so the app only sends your resume, school, portfolio website, other work you added, and the job description (never your address, phone, or email).', { title: 'Get a free Gemini key' });
+});
+$('removeKeyBtn').addEventListener('click', async () => {
+  if (!(await ask('Remove your saved Gemini key? The cover letter maker will stop working until you add one again.', 'warning'))) return;
+  await api('/api/profile', { settings: { removeGeminiKey: true } }).catch((e) => toast(e.message, true));
+  const keep = dirty; dirty = false; await loadInfo(); dirty = keep;
+});
+
+async function reloadInfoKeepingEdits() { const keep = dirty; dirty = false; await loadInfo(); dirty = keep; }
+
+// Other work: documents and links scanned for the match score.
+function renderWork() {
+  const items = info.work || [];
+  $('workList').replaceChildren(siteItem(), ...items.map((w) => h('li', {},
+    h('div', { class: 'grow' },
+      h('div', { title: w.url || w.name }, w.url ? h('a', { href: w.url, target: '_blank', rel: 'noreferrer' }, w.name) : w.name),
+      h('small', {}, `${w.kind === 'site' ? `Website · ${w.pages} page${w.pages === 1 ? '' : 's'}` : w.kind === 'link' ? 'Link' : 'Document'} · ${(w.words || 0).toLocaleString()} words scanned`)),
+    h('button', { class: 'w mini', 'data-tip': 'Remove', 'aria-label': `Remove ${w.name}`, onclick: async () => {
+      if (!(await ask(`Remove "${w.name}"? It won't count toward your match score anymore.`, 'warning'))) return;
+      await api('/api/work/remove', { id: w.id }).catch((e) => toast(e.message, true));
+      reloadInfoKeepingEdits();
+    } }, '✕'))));
+}
+$('addWorkFileBtn').addEventListener('click', () => $('workFile').click());
+$('workFile').addEventListener('change', async (e) => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  if (!files.length) return;
+  await busy($('addWorkFileBtn'), 'Scanning…', async () => {
+    for (const file of files) {
+      const data = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.readAsDataURL(file); });
+      try {
+        const r = await api('/api/work/file', { name: file.name, data });
+        toast(`Scanned ${r.name}: ${r.words.toLocaleString()} words. Match scores are being updated.`);
+      } catch (err) { toast(`${file.name}: ${err.message}`, true); }
+    }
+  });
+  reloadInfoKeepingEdits();
+});
+async function addWorkLink() {
+  const url = $('workUrl').value.trim();
+  if (!url) return $('workUrl').focus();
+  await busy($('addWorkLinkBtn'), 'Scanning…', async () => {
+    const r = await api('/api/work/link', { url });
+    $('workUrl').value = '';
+    toast(`Scanned ${r.name}: ${r.words.toLocaleString()} words. Match scores are being updated.`);
+  });
+  reloadInfoKeepingEdits();
+}
+$('addWorkLinkBtn').addEventListener('click', addWorkLink);
+$('workUrl').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addWorkLink(); } });
+
+// Your portfolio website, the first item under "Add other work". It's your Portfolio link in About you → Links (the same
+// link applications get). It's read automatically, or with "Read again" after you update your site.
+function siteItem() {
+  const p = info.portfolio || {};
+  const host = p.url ? p.url.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+  const when = p.readAt ? new Date(p.readAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+  if (!p.url) {
+    return h('li', { class: 'muted' }, h('div', { class: 'grow' },
+      h('div', {}, 'Your portfolio website'),
+      h('small', {}, 'Add it as your Portfolio link in About you → Links, then click Save. Every page of it gets scanned.')));
+  }
+  return h('li', {},
+    h('div', { class: 'grow' },
+      h('div', {}, h('a', { href: p.url, target: '_blank', rel: 'noreferrer' }, host), ' ', h('small', {}, '(your portfolio website)')),
+      h('small', {}, p.readAt ? `Website · ${p.pages} page${p.pages === 1 ? '' : 's'} scanned on ${when} · change the link in About you → Links` : 'Not scanned yet.')),
+    h('button', { class: 'w', 'data-tip': 'Scan your website again after you update it', onclick: (e) => busy(e.currentTarget, 'Reading…', async () => {
+      const r = await api('/api/portfolio/read', {});
+      toast(`Read ${r.pages} pages from your website. Match scores are being updated.`);
+      reloadInfoKeepingEdits();
+    }) }, p.readAt ? 'Read again' : 'Scan it'));
+}
+
+function renderResumes() {
+  renderWork();
+  $('resumeList').replaceChildren(...(info.resumes.length ? info.resumes.map((r) => h('li', {},
+    h('div', { class: 'grow' }, h('div', {}, r.file), h('small', {}, r.converted ? 'Ready' : 'Needs converting to text')),
+    r.converted ? '' : h('button', { class: 'w', onclick: (e) => convert(e.currentTarget) }, 'Convert'),
+    h('button', { class: 'w mini', title: 'Remove', onclick: async () => {
+      if (!(await ask(`Remove ${r.file}?`, 'warning'))) return;
+      await api('/api/resume/remove', { file: r.file }); reloadInfoKeepingEdits();
+    } }, '✕'))) : [h('li', {}, 'No resume yet.')]));
+}
+async function convert(btn) {
+  await busy(btn, 'Converting…', async () => {
+    const { results } = await api('/api/resume/convert', {});
+    const failed = results.filter((r) => !r.ok);
+    if (failed.length) toast(`Couldn't convert: ${failed.map((f) => f.error).join('; ')}`, true);
+    else toast('Resume ready.');
+  });
+  reloadInfoKeepingEdits();
+}
+$('addResumeBtn').addEventListener('click', () => $('resumeFile').click());
+$('resumeFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const data = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.readAsDataURL(file); });
+  document.body.classList.add('wait');
+  try {
+    await api('/api/resume/upload', { name: file.name, data });
+    $('resumeMsg').textContent = 'Reading the PDF…';
+    const { results } = await api('/api/resume/convert', {});
+    const failed = results.filter((r) => !r.ok);
+    $('resumeMsg').textContent = failed.length ? 'Conversion failed. Click "Convert" to retry.' : 'Ready.';
+  } catch (err) { toast(err.message, true); $('resumeMsg').textContent = ''; }
+  document.body.classList.remove('wait');
+  reloadInfoKeepingEdits();
+});
+
+// Saved answers can be long, so the section folds up (remembered between visits; starts folded).
+function setLearnedOpen(open) {
+  $('learnedToggle').setAttribute('aria-expanded', String(open));
+  $('learnedBody').hidden = !open;
+  $('learnedBox').classList.toggle('closed', !open);
+  store.set('learnedOpen', open ? '1' : '0');
+}
+$('learnedToggle').addEventListener('click', () => setLearnedOpen($('learnedBody').hidden));
+setLearnedOpen(store.get('learnedOpen') === '1');
+
+function renderLearned() {
+  $('learnedCount').textContent = `(${info.learned.length})`;
+  // Green = greenlit (filled in without a flag). Orange = double-check (filled in, outlined orange so you look at it).
+  const light = (l) => h('button', { class: `w mini light ${l.check ? 'check' : 'go'}`, 'aria-pressed': String(!l.check),
+    'aria-label': l.check ? 'Double-check: click to greenlight this answer' : 'Greenlit: click to have it flagged so you double-check it',
+    'data-tip': l.check ? 'Orange: filled in, but outlined so you check it. Click to greenlight it once you trust it.' : 'Greenlit: filled in without a flag. Click to flag it orange again.',
+    onclick: async () => {
+      try { l.check = (await api('/api/learned/toggle', { key: l.key })).check; renderLearned(); } catch (e) { toast(e.message, true); }
+    } }, h('i'));
+  $('learnedList').replaceChildren(...(info.learned.length ? info.learned.map((l) => h('li', {},
+    h('div', { class: 'grow' }, h('div', {}, l.question), h('small', {}, '→ ' + l.answer)),
+    light(l),
+    h('button', { class: 'w mini', title: 'Forget this answer', onclick: async () => {
+      await api('/api/learned/delete', { key: l.key }); info.learned = info.learned.filter((x) => x.key !== l.key); renderLearned();
+    } }, '✕'))) : [h('li', {}, 'Nothing saved yet.')]));
+}
+
+$('saveBtn').addEventListener('click', (e) => busy(e.currentTarget, 'Saving…', async () => {
+  const profile = structuredClone(info.profile);
+  document.querySelectorAll('#profileForm [data-path]').forEach((inp) => {
+    const parts = inp.dataset.path.split('.');
+    let obj = profile;
+    while (parts.length > 1) obj = obj[parts.shift()];
+    obj[parts[0]] = inp.value.trim();
+  });
+  profile.availability = { ...profile.availability, openToRemote: $('setRemote').checked ? 'Yes' : 'No' };
+  const tidy = await api('/api/profile', { profile, settings: {
+    geminiKey: $('setGemini').value.trim() || undefined,
+    hometowns: hometownValues(), radiusMiles: radiusValue(),
+  } });
+  info.profile = profile;
+  if ($('setGemini').value.trim()) {
+    $('setGemini').value = '';
+    $('geminiState').textContent = '✓ Key saved. Paste a new one to replace it.';
+    $('removeKeyBtn').hidden = false;
+  }
+  dirty = false; $('saveMsg').textContent = 'All changes saved.';
+  if (!tidied(tidy)) toast('Saved.');
+}).then(() => { $('saveBtn').disabled = !dirty; }));
+
+// ---- History ----
+async function loadHistory() {
+  let rows;
+  try { rows = await api('/api/history'); } catch (e) { return toast(e.message, true); }
+  const sub = rows.filter((r) => r.status === 'submitted').length;
+  $('stats').replaceChildren(h('div', {}, h('b', {}, sub), ' submitted'), h('div', {}, h('b', {}, rows.length - sub), ' skipped'));
+  $('historyBody').replaceChildren(...(rows.length
+    ? rows.map((r) => h('tr', { title: r.notes || '' },
+        h('td', {}, r.date),
+        h('td', {}, r.status === 'submitted' ? '✔ Submitted' : 'Skipped'),
+        h('td', {}, r.company || '—'),
+        h('td', {}, r.title || '—'),
+        h('td', {}, r.fit ? `${r.fit}/10` : ''),
+        h('td', {}, r.url ? h('a', { href: r.url, target: '_blank', rel: 'noreferrer' }, 'Open') : '')))
+    : [h('tr', { class: 'empty' }, h('td', { colspan: 6 }, 'Nothing yet. Jobs you submit or skip show up here.'))]));
+}
+
+connect();
+if (window.APP_OUTDATED) {
+  msgbox('Apply Assistant was updated while it was open.\n\nClose it and open it again to finish updating. Until then, some things may not work.', { icon: 'warning', title: 'Restart needed' });
+}
+</script>
+</body>
+</html>
